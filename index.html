@@ -216,6 +216,7 @@
    (Supabase → Project Settings → API → Project URL ir anon/public key)
    ===================================================================== */
 const SUPABASE_URL      = 'https://vznrlzyauqvyzmtlwbla.supabase.co';
+const EMAIL_DOMAIN      = 'kmmokykla.lt';   // leidžiamas el. pašto domenas ('' = bet koks)
 const SUPABASE_ANON_KEY = 'sb_publishable_6xxPiGoPGke4ZHTVNEaMzg_FkRsWm0S';
 /* ===================================================================== */
 
@@ -227,7 +228,7 @@ const I18N = {
     loginSub: 'Prisijunkite mokyklos el. paštu.', signupSub: 'Užtruks mažiau nei minutę.',
     login: 'Prisijungti', signup: 'Sukurti paskyrą',
     student: 'Mokinys', teacher: 'Mokytojas', studentSub: 'atlieku darbus', teacherSub: 'skelbiu darbus',
-    first: 'Vardas', last: 'Pavardė', email: 'Mokyklos el. paštas', emailPh: 'vardas@mokykla.lt',
+    first: 'Vardas', last: 'Pavardė', email: 'Mokyklos el. paštas', emailPh: 'vardas@kmmokykla.lt',
     pass: 'Slaptažodis', passMin: ' (bent 6 simboliai)',
     errLogin: 'Neteisingas el. paštas arba slaptažodis.', errShort: 'Slaptažodis per trumpas.',
     errExists: 'Paskyra su šiuo el. paštu jau yra. Prisijunkite.', errGeneric: 'Kažkas nepavyko. Bandykite dar kartą.',
@@ -277,7 +278,7 @@ const I18N = {
     loginSub: 'Sign in with your school email.', signupSub: 'Takes less than a minute.',
     login: 'Sign in', signup: 'Create account',
     student: 'Student', teacher: 'Teacher', studentSub: 'I do the tasks', teacherSub: 'I post the tasks',
-    first: 'First name', last: 'Last name', email: 'School email', emailPh: 'name@school.com',
+    first: 'First name', last: 'Last name', email: 'School email', emailPh: 'name@kmmokykla.lt',
     pass: 'Password', passMin: ' (at least 6 characters)',
     errLogin: 'Wrong email or password.', errShort: 'Password is too short.',
     errExists: 'An account with this email already exists. Please sign in.', errGeneric: 'Something went wrong. Please try again.',
@@ -331,7 +332,7 @@ Object.assign(I18N.lt, {
   checkEmail: 'Paskyra sukurta! Patikrinkite el. paštą ir paspauskite patvirtinimo nuorodą, tada prisijunkite.',
   notConfirmed: 'El. paštas dar nepatvirtintas. Patikrinkite pašto dėžutę.',
   teacherCode: 'Mokytojo kodas', teacherCodeHint: 'Kodą gausite iš mokyklos administracijos.',
-  errCode: 'Neteisingas mokytojo kodas.', errCodeOrDomain: 'Neteisingas mokytojo kodas (arba naudojamas ne mokyklos el. paštas).', errDomain: 'Naudokite mokyklos el. paštą.',
+  errCode: 'Neteisingas mokytojo kodas.', errCodeOrDomain: 'Neteisingas mokytojo kodas (arba naudojamas ne mokyklos el. paštas).', errDomain: 'Galima naudoti tik mokyklos el. paštą (@kmmokykla.lt).',
   errFullDb: 'Vietų nebeliko.', errPast: 'Šis darbas jau įvyko.', errRate: 'Per daug bandymų. Palaukite kelias minutes.',
   errNet: 'Nepavyko prisijungti prie serverio. Patikrinkite internetą.',
   noConfig: 'Svetainė dar nesukonfigūruota: index.html faile įrašykite SUPABASE_URL ir SUPABASE_ANON_KEY.'
@@ -345,7 +346,7 @@ Object.assign(I18N.en, {
   checkEmail: 'Account created! Check your email and click the confirmation link, then sign in.',
   notConfirmed: "Your email isn't confirmed yet. Check your inbox.",
   teacherCode: 'Teacher code', teacherCodeHint: "You'll get the code from the school office.",
-  errCode: 'Wrong teacher code.', errCodeOrDomain: 'Wrong teacher code (or not a school email).', errDomain: 'Please use your school email.',
+  errCode: 'Wrong teacher code.', errCodeOrDomain: 'Wrong teacher code (or not a school email).', errDomain: 'Only school emails (@kmmokykla.lt) are allowed.',
   errFullDb: 'No spots left.', errPast: 'This task has already passed.', errRate: 'Too many attempts. Please wait a few minutes.',
   errNet: "Couldn't reach the server. Check your internet connection.",
   noConfig: 'The site is not configured yet: set SUPABASE_URL and SUPABASE_ANON_KEY in index.html.'
@@ -486,6 +487,7 @@ async function onAuth(ev){
   const email = (f.get('email')||'').trim().toLowerCase(), pass = f.get('pass')||'';
   err.textContent=''; S.authNote='';
   if (!CONFIGURED){ err.textContent = t('noConfig'); return }
+  if (EMAIL_DOMAIN && email && S.authMode!=='recovery' && !email.endsWith('@' + EMAIL_DOMAIN)){ err.textContent = t('errDomain'); return }
   btn.disabled = true;
   try{
     if (S.authMode==='login'){
