@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Socialy</title>
+<meta name="description" content="Socialy – socialinių valandų valdymas mokykloje">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%230a0a0a%22/%3E%3Ccircle cx=%2224%22 cy=%2232%22 r=%2210%22 fill=%22%23FFD60A%22/%3E%3Ccircle cx=%2244%22 cy=%2232%22 r=%2210%22 fill=%22%233DDC84%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0a; --card:#141414; --card2:#1b1b1b; --line:#262626;
+    --text:#f2f2f2; --muted:#8a8a8a;
+    --y:#FFD60A; --g:#3DDC84; --r:#ff5c5c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',system-ui,sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh}
+  button,input,select,textarea{font:inherit;color:inherit}
+  .wrap{max-width:760px;margin:0 auto;padding:28px 18px 80px}
+  .brand{display:inline-flex;align-items:flex-end;gap:6px;font-weight:700;letter-spacing:-.05em;font-size:30px;line-height:1}
+  .brand .w{background:linear-gradient(180deg,#fff 0%,#fff 60%,#d9d9d9 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .brand .w .y{color:var(--y);-webkit-text-fill-color:var(--y)}
+  .brand .dots{display:inline-flex;gap:4px;margin-bottom:.14em}
+  .brand .dots i{width:.22em;height:.22em;border-radius:50%;background:var(--y)}
+  .brand .dots i+i{background:var(--g)}
+  .brand.big{font-size:76px;gap:10px}
+  .auth .tag{color:var(--g);font-weight:600;font-size:15px;margin-top:10px;letter-spacing:.01em}
+  .authtop{display:flex;justify-content:flex-end;margin-bottom:22px}
+  .lang{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .lang button{background:none;border:0;color:var(--muted);font-size:12px;font-weight:700;padding:5px 8px;cursor:pointer;letter-spacing:.04em}
+  .lang button.on{background:var(--text);color:#000}
+  @media (max-width:520px){ .brand.big{font-size:60px} .brand{font-size:26px} }
+  .y{color:var(--y)} .g{color:var(--g)} .r{color:var(--r)} .m{color:var(--muted)}
+
+  /* AUTH */
+  .auth{max-width:400px;margin:3vh auto 0}
+  .auth h1{font-size:30px;line-height:1.1;letter-spacing:-.03em;margin:30px 0 8px}
+  .auth p.sub{color:var(--muted);margin-bottom:24px}
+  .seg{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:18px}
+  .seg button{background:none;border:0;padding:10px;border-radius:9px;cursor:pointer;color:var(--muted);font-weight:600}
+  .seg button.on{background:var(--y);color:#000}
+  label.f{display:block;margin-bottom:12px}
+  label.f span{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  input,select,textarea{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;outline:none;transition:border-color .15s}
+  input:focus,select:focus,textarea:focus{border-color:var(--y)}
+  textarea{resize:vertical;min-height:80px}
+  input[type=date],input[type=time]{color-scheme:dark}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .roles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .roles button{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 10px;cursor:pointer;font-weight:600;text-align:center}
+  .roles button small{display:block;font-weight:400;color:var(--muted);font-size:12px;margin-top:2px}
+  .roles button.on.st{border-color:var(--y);color:var(--y)}
+  .roles button.on.te{border-color:var(--g);color:var(--g)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:10px;padding:12px 18px;font-weight:700;cursor:pointer;transition:transform .08s,opacity .15s}
+  .btn:active{transform:scale(.97)}
+  .btn:disabled{opacity:.5;cursor:default}
+  .btn.full{width:100%;padding:14px}
+  .btn.y{background:var(--y);color:#000}
+  .btn.g{background:var(--g);color:#000}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+  .btn.sm{padding:8px 12px;font-size:14px;border-radius:8px}
+  .btn.out-g{background:transparent;border:1px solid var(--g);color:var(--g)}
+  .btn.out-r{background:transparent;border:1px solid var(--line);color:var(--muted)}
+  .btn.out-r:hover{border-color:var(--r);color:var(--r)}
+  .err{color:var(--r);font-size:14px;min-height:20px;margin:6px 0 10px}
+
+  /* APP */
+  header.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+  .who{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;font-size:14px;color:var(--muted)}
+  .who b{color:var(--text);font-weight:600}
+  .badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px}
+  .badge.st{background:rgba(255,214,10,.12);color:var(--y)}
+  .badge.te{background:rgba(61,220,132,.12);color:var(--g)}
+  .linkbtn{background:none;border:0;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+  .linkbtn:hover{color:var(--text)}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:30px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .stat .n{font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1}
+  .stat .l{font-size:13px;color:var(--muted);margin-top:6px}
+
+  h2{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;margin:30px 0 12px;display:flex;align-items:center;justify-content:space-between}
+  .list{display:grid;gap:10px}
+  .job{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 16px 14px;position:relative}
+  .job.mine{border-color:rgba(255,214,10,.45)}
+  .job.done{border-color:rgba(61,220,132,.45)}
+  .job .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .job h3{font-size:18px;font-weight:600;letter-spacing:-.01em}
+  .hrs{flex:none;font-weight:700;color:var(--g);background:rgba(61,220,132,.1);border-radius:8px;padding:4px 10px;font-size:14px;white-space:nowrap}
+  .meta{display:flex;flex-wrap:wrap;gap:6px 16px;margin:8px 0 10px;font-size:14px}
+  .meta .y{font-weight:500}
+  .task{color:#cfcfcf;font-size:15px;line-height:1.45;white-space:pre-wrap;margin-bottom:12px}
+  .foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .foot .m{font-size:13px}
+  .status{font-size:14px;font-weight:600}
+  .empty{border:1px dashed var(--line);border-radius:14px;padding:22px;text-align:center;color:var(--muted);font-size:15px}
+
+  .ppl{border-top:1px solid var(--line);margin-top:12px;padding-top:10px;display:grid;gap:6px}
+  .p{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:15px;padding:4px 0}
+  .p .acts{display:flex;gap:6px}
+  .p.ok .nm{color:var(--g)}
+  .past{opacity:.75}
+
+  .newjob{background:var(--card);border:1px solid var(--g);border-radius:14px;padding:16px;margin-bottom:10px}
+  .newjob h3{margin-bottom:14px;font-size:17px}
+  .tbl{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tbl .tr{display:flex;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--line);font-size:15px}
+  .tbl .tr:first-child{border-top:0}
+  .note{font-size:13px;color:var(--muted);text-align:center;margin-top:30px;line-height:1.5}
+
+  .cal{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+  .cal .ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .cal .ch b{font-size:17px;text-transform:capitalize}
+  .cal .nav{background:none;border:1px solid var(--line);border-radius:8px;width:34px;height:34px;cursor:pointer;color:var(--text);font-size:16px}
+  .cal .nav:hover{border-color:var(--y);color:var(--y)}
+  .cal .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cal .wd{font-size:11px;color:var(--muted);text-align:center;padding:4px 0;text-transform:uppercase;letter-spacing:.05em}
+  .cal .d{aspect-ratio:1/1;max-height:54px;border:1px solid transparent;border-radius:9px;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:15px;color:var(--text)}
+  .cal .d:hover{background:var(--card2)}
+  .cal .d.out{color:#444}
+  .cal .d.past{color:#5a5a5a}
+  .cal .d.today{border-color:var(--line);font-weight:700}
+  .cal .d.sel{background:var(--y);color:#000;font-weight:700}
+  .cal .dots{display:flex;gap:3px;height:6px}
+  .cal .dots i{width:6px;height:6px;border-radius:50%;background:var(--y)}
+  .cal .dots i.g{background:var(--g)}
+  .cal .dots i.o{background:transparent;border:1.5px solid var(--y);width:6px;height:6px}
+  .cal .d.sel .dots i{background:#000;border-color:#000}
+  .cal .leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+  .cal .leg span{display:inline-flex;align-items:center;gap:5px}
+  .cal .leg i{width:7px;height:7px;border-radius:50%;background:var(--y);display:inline-block}
+  .cal .leg i.g{background:var(--g)} .cal .leg i.o{background:none;border:1.5px solid var(--y)}
+
+  .cal .dots i.r{background:var(--r)} .cal .leg i.r{background:var(--r)}
+  .job.failed{border-color:rgba(255,92,92,.45)}
+  .who2{font-size:14px;color:#bdbdbd;margin:-2px 0 12px}
+  .p small{display:block;font-size:12px;margin-top:1px}
+  .p.bad .nm{color:var(--r)}
+  .relist{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border:1px dashed rgba(255,214,10,.5);border-radius:10px;font-size:14px}
+  .chatrow{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+  .chatbtn{background:none;border:0;color:var(--muted);cursor:pointer;font-size:14px;font-weight:600;padding:2px 0}
+  .chatbtn:hover,.chatbtn.on{color:var(--text)}
+  .cnt{display:inline-block;background:var(--y);color:#000;border-radius:99px;padding:1px 7px;font-size:11px;font-weight:700;margin-left:4px;vertical-align:1px}
+  .chat{margin-top:8px}
+  .msgs{max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px 2px 8px}
+  .msg{max-width:85%;background:var(--card2);border:1px solid var(--line);border-radius:12px 12px 12px 4px;padding:8px 11px;align-self:flex-start}
+  .msg.me{align-self:flex-end;border-radius:12px 12px 4px 12px;border-color:rgba(255,214,10,.35);background:rgba(255,214,10,.06)}
+  .msg .mh{display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:3px;flex-wrap:wrap}
+  .msg .mh .badge{font-size:9px;padding:2px 6px}
+  .msg .mt{font-size:15px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word}
+  .send{display:flex;gap:8px;margin-top:6px}
+  .send input{padding:10px 12px}
+  .notif{background:var(--card);border:1px solid var(--y);border-radius:14px;padding:12px 12px 8px;margin-bottom:22px}
+  .notif .nh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px;padding:0 4px;font-size:15px}
+  .notif .nh .linkbtn{font-size:13px}
+  .ni{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:10px 4px;cursor:pointer;font-size:14px;line-height:1.4}
+  .ni:hover{background:var(--card2)}
+  .ni .t{flex:none;font-size:12px}
+
+  /* ---- Feats / auth hero ---- */
+  .feats{list-style:none;display:none;margin-top:36px;gap:14px}
+  .feats li{display:flex;align-items:center;max-width:460px;line-height:1.35;gap:12px;font-size:17px;color:#d6d6d6}
+  .feats i{flex:none;font-style:normal;width:36px;height:36px;border-radius:10px;background:var(--card);border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:16px}
+  .main > h2:first-child, .main > .notif + h2{margin-top:0}
+  .sideh{margin-top:26px}
+  /* ---- Desktop ---- */
+  @media (min-width:1000px){
+    .wrap{max-width:1440px;padding:28px 40px 80px}
+    .auth{max-width:1100px;margin:8vh auto 0;display:grid;grid-template-columns:1.15fr 1fr;gap:80px;align-items:center}
+    .hero{padding-right:20px}
+    .brand.big{font-size:132px;gap:14px}
+    .auth .tag{font-size:22px;margin-top:18px}
+    .feats{display:grid}
+    .formside{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:30px 32px 32px}
+    .formside h1{margin-top:0}
+    .formside input{background:var(--bg)}
+    .formside .seg,.formside .roles button{background:var(--bg)}
+    .authtop{margin-bottom:10px}
+    header.top{margin-bottom:32px}
+    .brand{font-size:34px}
+    .cols{display:grid;grid-template-columns:380px 1fr;gap:36px;align-items:start}
+    .side{position:sticky;top:20px;max-height:calc(100vh - 40px);overflow-y:auto;padding-bottom:10px;scrollbar-width:thin}
+    .side .stats{grid-template-columns:repeat(3,1fr);margin-bottom:14px}
+    .side .stats .stat:last-child{grid-column:auto}
+    .side .stat{padding:14px 12px}
+    .side .stat .n{font-size:28px}
+    .side .stat .l{font-size:12px}
+    .main .list{grid-template-columns:repeat(auto-fill,minmax(400px,1fr));align-items:start;gap:14px}
+    .main h2{margin-top:34px}
+  }
+  @media (min-width:1500px){ .cols{grid-template-columns:420px 1fr} }
+  .note-box{border:1px solid var(--y);background:rgba(255,214,10,.07);color:var(--text);border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.45;margin-bottom:16px}
+  .note-box.ok{border-color:var(--g);background:rgba(61,220,132,.08)}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:#000;padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:9}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  .hidden{display:none!important}
+  @media (max-width:520px){
+    .stats{grid-template-columns:1fr 1fr}
+    .stats .stat:last-child{grid-column:span 2}
+    .stat .n{font-size:28px}
+    .who .nmfull{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* =====================================================================
+   SOCIALY – NUSTATYMAI
+   Įrašykite savo Supabase projekto duomenis
+   (Supabase → Project Settings → API → Project URL ir anon/public key)
+   ===================================================================== */
+const SUPABASE_URL      = 'https://vznrlzyauqvyzmtlwbla.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_6xxPiGoPGke4ZHTVNEaMzg_FkRsWm0S';
+/* ===================================================================== */
+
+const I18N = {
+  lt: {
+    tagline: 'Socialinės valandos – paprastai.',
+    f1: 'Visi darbai matomi sąraše ir kalendoriuje', f2: 'Mokytojui patvirtinus atliktą darbą, valandos įskaitomos automatiškai', f3: 'Kilus klausimų, rašykite mokytojui darbo komentaruose',
+    welcome: 'Sveiki <span class="y">sugrįžę</span>', create: 'Sukurkite <span class="g">paskyrą</span>',
+    loginSub: 'Prisijunkite mokyklos el. paštu.', signupSub: 'Užtruks mažiau nei minutę.',
+    login: 'Prisijungti', signup: 'Sukurti paskyrą',
+    student: 'Mokinys', teacher: 'Mokytojas', studentSub: 'atlieku darbus', teacherSub: 'skelbiu darbus',
+    first: 'Vardas', last: 'Pavardė', email: 'Mokyklos el. paštas', emailPh: 'vardas@mokykla.lt',
+    pass: 'Slaptažodis', passMin: ' (bent 6 simboliai)',
+    errLogin: 'Neteisingas el. paštas arba slaptažodis.', errShort: 'Slaptažodis per trumpas.',
+    errExists: 'Paskyra su šiuo el. paštu jau yra. Prisijunkite.', errGeneric: 'Kažkas nepavyko. Bandykite dar kartą.',
+    errPerm: 'Neturite teisės įrašyti. Paprašykite svetainės savininko suteikti jums prieigą.', errFull: 'Duomenų bazė pilna.', errSave: 'Nepavyko išsaugoti. Bandykite dar kartą.',
+    created: 'Paskyra sukurta!', loading: 'Įkeliama…', logout: 'Atsijungti',
+    news: 'Naujienos', markRead: 'Pažymėti kaip perskaitytas', andMore: n => `ir dar ${n}…`,
+    nSigned: (n, t) => `${n} užsiregistravo į „${t}“`,
+    nDone: 'darbas atliktas', nFailed: 'darbas neatliktas',
+    justNow: 'ką tik', minAgo: n => `prieš ${n} min.`, hAgo: n => `prieš ${n} val.`,
+    months: ['sausis','vasaris','kovas','balandis','gegužė','birželis','liepa','rugpjūtis','rugsėjis','spalis','lapkritis','gruodis'],
+    mon: ['sau','vas','kov','bal','geg','bir','lie','rgp','rgs','spa','lap','gru'],
+    days: ['sekm.','pirm.','antr.','treč.','ketv.','penkt.','šešt.'],
+    wd: ['Pr','An','Tr','Kt','Pn','Št','Sk'],
+    fmtDate: (d, M, D) => `${M[d.getMonth()]} ${d.getDate()} d., ${D[d.getDay()]}`,
+    shortDate: (d, M) => `${M[d.getMonth()]} ${d.getDate()} d.`,
+    showAll: 'Rodyti visus', noJobsDay: 'Šią dieną darbų nėra.',
+    lgFree: 'Laisvas darbas', lgReg: 'Užsiregistravote', lgDone: 'Atlikta', lgFail: 'Neatlikta', lgMine: 'Mano darbai', lgOther: 'Kitų mokytojų',
+    comments: 'Komentarai', hideComments: 'Slėpti komentarus', nNew: n => `${n} nauji`, you: 'Jūs', teacherBadge: 'mokytojas',
+    noComments: 'Dar nėra komentarų. Parašykite pirmas!', writeComment: 'Rašykite komentarą…', send: 'Siųsti',
+    earned: 'Uždirbta valandų', pending: 'Laukia patvirtinimo', freeJobs: 'Laisvi darbai', myJobs: 'Mano darbai',
+    noFree: 'Šiuo metu naujų darbų nėra. Užsukite vėliau!',
+    hrs: 'val.', doneHrs: h => `✓ Darbas atliktas · +${h} val.`, notDone: '✕ Darbas neatliktas',
+    waitConfirm: '⏳ Laukia mokytojo patvirtinimo', registered: '✓ Užsiregistravote', cancel: 'Atšaukti',
+    happened: 'Darbas jau įvyko', spotsLeft: n => `Liko vietų: ${n}`, register: 'Registruotis', noSpots: 'Vietų nebeliko',
+    signedUpList: (n, s) => `Užsiregistravo (${n}/${s})`,
+    signedStudents: 'Užsiregistravę mokiniai', givenHrs: 'Suteikta valandų',
+    newJob: '+ Naujas darbas', needConfirm: 'Reikia patvirtinti', upcoming: 'Būsimi darbai',
+    noUpcoming: 'Nėra būsimų darbų. Spauskite „+ Naujas darbas“.', pastJobs: 'Praėję darbai', studentHours: 'Mokinių valandos',
+    nSignedUp: (a, b) => `${a}/${b} užsiregistravo`,
+    jobDone: h => `Darbas atliktas · +${h} val.`, jobFailed: 'Darbas neatliktas', signedAgo: a => `Užsiregistravo ${a}`,
+    btnDone: '✓ Atliktas', btnFail: '✕ Neatliktas', change: 'Keisti', allDone: '✓ Visi atliko', nobody: 'Dar niekas neužsiregistravo',
+    relistQ: n => `Darbas neatliktas (${n}). Paskelbti jį iš naujo?`, relistBtn: '↻ Skelbti iš naujo',
+    delQ: 'Ištrinti darbą?', no: 'Ne', yesDel: 'Taip, ištrinti', del: 'Ištrinti',
+    relistTitle: '↻ Skelbti iš naujo', newJobTitle: 'Naujas darbas',
+    fTitle: 'Ką reikia padaryti? (pavadinimas)', fTitlePh: 'pvz. Bibliotekos knygų tvarkymas',
+    fPlace: 'Vieta', fPlacePh: 'pvz. 204 kabinetas, biblioteka', fDate: 'Data', fTime: 'Kada ateiti',
+    fHours: 'Socialinės valandos', fSpots: 'Kiek mokinių reikia', fTask: 'Užduotis (neprivaloma)',
+    fTaskPh: 'Trumpai aprašykite, ką mokiniai darys ir ką atsinešti.', publish: 'Paskelbti',
+    tRegistered: 'Užregistruota! Mokytojas gaus pranešimą 👋', tUnreg: 'Registracija atšaukta',
+    tPublished: 'Darbas paskelbtas!', tRepublished: 'Darbas paskelbtas iš naujo!',
+    tDone: 'Darbas atliktas – valandos įskaitytos ✓', tFail: 'Pažymėta: darbas neatliktas', tAll: 'Visiems įskaityta ✓', tDeleted: 'Darbas ištrintas'
+  },
+  en: {
+    tagline: 'Social hours, made simple.',
+    f1: 'See all tasks in a list and on a calendar', f2: 'Hours are added automatically once the teacher confirms the task is done', f3: 'Questions? Write to the teacher in the task comments',
+    welcome: 'Welcome <span class="y">back</span>', create: 'Create an <span class="g">account</span>',
+    loginSub: 'Sign in with your school email.', signupSub: 'Takes less than a minute.',
+    login: 'Sign in', signup: 'Create account',
+    student: 'Student', teacher: 'Teacher', studentSub: 'I do the tasks', teacherSub: 'I post the tasks',
+    first: 'First name', last: 'Last name', email: 'School email', emailPh: 'name@school.com',
+    pass: 'Password', passMin: ' (at least 6 characters)',
+    errLogin: 'Wrong email or password.', errShort: 'Password is too short.',
+    errExists: 'An account with this email already exists. Please sign in.', errGeneric: 'Something went wrong. Please try again.',
+    errPerm: "You don't have permission to save. Ask the site owner to give you access.", errFull: 'The database is full.', errSave: "Couldn't save. Please try again.",
+    created: 'Account created!', loading: 'Loading…', logout: 'Sign out',
+    news: 'Updates', markRead: 'Mark all as read', andMore: n => `and ${n} more…`,
+    nSigned: (n, t) => `${n} signed up for “${t}”`,
+    nDone: 'task completed', nFailed: 'task not completed',
+    justNow: 'just now', minAgo: n => `${n} min ago`, hAgo: n => `${n} h ago`,
+    months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    mon: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    days: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    wd: ['Mo','Tu','We','Th','Fr','Sa','Su'],
+    fmtDate: (d, M, D) => `${D[d.getDay()]}, ${M[d.getMonth()]} ${d.getDate()}`,
+    shortDate: (d, M) => `${M[d.getMonth()]} ${d.getDate()}`,
+    showAll: 'Show all', noJobsDay: 'No tasks on this day.',
+    lgFree: 'Open task', lgReg: 'Signed up', lgDone: 'Completed', lgFail: 'Not completed', lgMine: 'My tasks', lgOther: 'Other teachers',
+    comments: 'Comments', hideComments: 'Hide comments', nNew: n => `${n} new`, you: 'You', teacherBadge: 'teacher',
+    noComments: 'No comments yet. Be the first!', writeComment: 'Write a comment…', send: 'Send',
+    earned: 'Hours earned', pending: 'Awaiting approval', freeJobs: 'Open tasks', myJobs: 'My tasks',
+    noFree: 'No new tasks right now. Check back later!',
+    hrs: 'h', doneHrs: h => `✓ Task completed · +${h} h`, notDone: '✕ Task not completed',
+    waitConfirm: '⏳ Waiting for teacher approval', registered: "✓ You're signed up", cancel: 'Cancel',
+    happened: 'This task has passed', spotsLeft: n => `Spots left: ${n}`, register: 'Sign up', noSpots: 'No spots left',
+    signedUpList: (n, s) => `Signed up (${n}/${s})`,
+    signedStudents: 'Students signed up', givenHrs: 'Hours awarded',
+    newJob: '+ New task', needConfirm: 'Needs approval', upcoming: 'Upcoming tasks',
+    noUpcoming: 'No upcoming tasks. Tap “+ New task”.', pastJobs: 'Past tasks', studentHours: 'Student hours',
+    nSignedUp: (a, b) => `${a}/${b} signed up`,
+    jobDone: h => `Task completed · +${h} h`, jobFailed: 'Task not completed', signedAgo: a => `Signed up ${a}`,
+    btnDone: '✓ Completed', btnFail: '✕ Not completed', change: 'Change', allDone: '✓ All completed', nobody: 'Nobody has signed up yet',
+    relistQ: n => `Task not completed (${n}). Post it again?`, relistBtn: '↻ Post again',
+    delQ: 'Delete this task?', no: 'No', yesDel: 'Yes, delete', del: 'Delete',
+    relistTitle: '↻ Post again', newJobTitle: 'New task',
+    fTitle: 'What needs to be done? (title)', fTitlePh: 'e.g. Tidying the library',
+    fPlace: 'Place', fPlacePh: 'e.g. Room 204, library', fDate: 'Date', fTime: 'When to come',
+    fHours: 'Social hours', fSpots: 'Students needed', fTask: 'Task details (optional)',
+    fTaskPh: 'Briefly describe what students will do and what to bring.', publish: 'Post',
+    tRegistered: "You're signed up! The teacher will be notified 👋", tUnreg: 'Sign-up cancelled',
+    tPublished: 'Task posted!', tRepublished: 'Task posted again!',
+    tDone: 'Task completed – hours awarded ✓', tFail: 'Marked as not completed', tAll: 'Hours awarded to everyone ✓', tDeleted: 'Task deleted'
+  }
+};
+
+Object.assign(I18N.lt, {
+  forgot: 'Pamiršote slaptažodį?', forgotTitle: 'Atkurti <span class="y">slaptažodį</span>',
+  forgotSub: 'Atsiųsime nuorodą naujam slaptažodžiui nustatyti.', sendLink: 'Siųsti nuorodą',
+  linkSent: 'Nuoroda išsiųsta! Patikrinkite el. paštą.', back: '← Atgal į prisijungimą',
+  newPassTitle: 'Naujas <span class="g">slaptažodis</span>', newPassSub: 'Įveskite naują slaptažodį.',
+  savePass: 'Išsaugoti slaptažodį', passSaved: 'Slaptažodis pakeistas!',
+  checkEmail: 'Paskyra sukurta! Patikrinkite el. paštą ir paspauskite patvirtinimo nuorodą, tada prisijunkite.',
+  notConfirmed: 'El. paštas dar nepatvirtintas. Patikrinkite pašto dėžutę.',
+  teacherCode: 'Mokytojo kodas', teacherCodeHint: 'Kodą gausite iš mokyklos administracijos.',
+  errCode: 'Neteisingas mokytojo kodas.', errCodeOrDomain: 'Neteisingas mokytojo kodas (arba naudojamas ne mokyklos el. paštas).', errDomain: 'Naudokite mokyklos el. paštą.',
+  errFullDb: 'Vietų nebeliko.', errPast: 'Šis darbas jau įvyko.', errRate: 'Per daug bandymų. Palaukite kelias minutes.',
+  errNet: 'Nepavyko prisijungti prie serverio. Patikrinkite internetą.',
+  noConfig: 'Svetainė dar nesukonfigūruota: index.html faile įrašykite SUPABASE_URL ir SUPABASE_ANON_KEY.'
+});
+Object.assign(I18N.en, {
+  forgot: 'Forgot password?', forgotTitle: 'Reset <span class="y">password</span>',
+  forgotSub: "We'll send you a link to set a new password.", sendLink: 'Send link',
+  linkSent: 'Link sent! Check your email.', back: '← Back to sign in',
+  newPassTitle: 'New <span class="g">password</span>', newPassSub: 'Enter your new password.',
+  savePass: 'Save password', passSaved: 'Password changed!',
+  checkEmail: 'Account created! Check your email and click the confirmation link, then sign in.',
+  notConfirmed: "Your email isn't confirmed yet. Check your inbox.",
+  teacherCode: 'Teacher code', teacherCodeHint: "You'll get the code from the school office.",
+  errCode: 'Wrong teacher code.', errCodeOrDomain: 'Wrong teacher code (or not a school email).', errDomain: 'Please use your school email.',
+  errFullDb: 'No spots left.', errPast: 'This task has already passed.', errRate: 'Too many attempts. Please wait a few minutes.',
+  errNet: "Couldn't reach the server. Check your internet connection.",
+  noConfig: 'The site is not configured yet: set SUPABASE_URL and SUPABASE_ANON_KEY in index.html.'
+});
+const LANG_KEY = 'socialy_lang';
+let LANG = (()=>{ try{ return localStorage.getItem(LANG_KEY) || 'lt' }catch(e){ return 'lt' } })();
+function t(k, ...a){ const v = I18N[LANG][k] ?? I18N.lt[k]; return typeof v === 'function' ? v(...a) : v }
+function setLang(l){ LANG = l; try{ localStorage.setItem(LANG_KEY, l) }catch(e){} document.documentElement.lang = l; S.me ? renderApp() : renderAuth() }
+const langSwitch = () => `<div class="lang">${['lt','en'].map(l=>`<button data-lang="${l}" class="${LANG===l?'on':''}">${l.toUpperCase()}</button>`).join('')}</div>`;
+function bindLang(){ document.querySelectorAll('[data-lang]').forEach(b => b.onclick = () => setLang(b.dataset.lang)) }
+const LOGO = (big) => `<div class="brand ${big?'big':''}"><span class="w">Social<span class="y">y</span></span><span class="dots"><i></i><i></i></span></div>`;
+
+/* ---------- Pagalbinės ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ymd = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const today = () => ymd(new Date());
+function plusDays(n){ const d=new Date(); d.setDate(d.getDate()+n); return ymd(d) }
+function fmtDate(s){ if(!s) return ''; return t('fmtDate', new Date(s+'T00:00'), t('mon'), t('days')) }
+let toastT; function toast(msg){ const el=$('#toast'); el.textContent=msg; el.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('on'),2600) }
+const ms = ts => ts ? Date.parse(ts) : 0;
+
+function errMsg(e){
+  const m = String((e && (e.message || e.error_description || e.msg)) || e || '');
+  if (/SOCIALY_BAD_TEACHER_CODE/.test(m)) return t('errCode');
+  if (/SOCIALY_BAD_DOMAIN/.test(m)) return t('errDomain');
+  if (/SOCIALY_FULL/.test(m)) return t('errFullDb');
+  if (/SOCIALY_PAST/.test(m)) return t('errPast');
+  if (/Invalid login credentials/i.test(m)) return t('errLogin');
+  if (/Email not confirmed/i.test(m)) return t('notConfirmed');
+  if (/already registered|already exists/i.test(m)) return t('errExists');
+  if (/rate limit|too many/i.test(m)) return t('errRate');
+  if (/Failed to fetch|NetworkError/i.test(m)) return t('errNet');
+  if (/row-level security|permission/i.test(m)) return t('errPerm');
+  return t('errSave');
+}
+// klaida iš signUp, kai trigeris atmeta (Supabase grąžina bendrą žinutę)
+function signupErr(e, role){
+  const m = String(e && e.message || '');
+  if (/Database error/i.test(m)) return role === 'teacher' ? t('errCodeOrDomain') : t('errDomain');
+  return errMsg(e);
+}
+
+/* ---------- Supabase ---------- */
+const CONFIGURED = !/JUSU-/.test(SUPABASE_URL + SUPABASE_ANON_KEY);
+const sb = CONFIGURED ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+const REDIRECT = location.origin + location.pathname;
+
+const mapJob = r => ({ id:r.id, title:r.title, place:r.place, date:r.date, time:r.time||'', hours:+r.hours, spots:r.spots, task:r.task||'',
+  teacherKey:r.teacher_id, teacherName:r.teacher_name, relistedCount:r.relisted_count||0 });
+const mapSignup = r => ({ id:r.id, jobId:r.job_id, studentKey:r.student_id, studentName:r.student_name, hours:+r.hours,
+  status:r.status, at:ms(r.created_at), statusAt:ms(r.status_at) });
+const mapMsg = r => ({ id:r.id, jobId:r.job_id, authorKey:r.author_id, authorName:r.author_name, role:r.role, text:r.text, at:ms(r.created_at) });
+
+async function q(p){ const { data, error } = await p; if (error) throw error; return data }
+
+/* ---------- Būsena ---------- */
+const S = { me:null, jobs:[], signups:[], authMode:'login', role:'student', newOpen:false, confirmDel:null, loaded:false, calMonth:null, selDay:null, messages:[], openChat:{}, drafts:{}, seenAt:0, lastN:null, prefill:null, sessionStart:0, channel:null, authNote:'' };
+
+/* ---------- AUTH ---------- */
+function renderAuth(){
+  const mode = S.authMode, login = mode==='login', signup = mode==='signup';
+  let formHtml, title, sub;
+  if (mode==='forgot'){
+    title = t('forgotTitle'); sub = t('forgotSub');
+    formHtml = `<form id="authForm">
+      <label class="f"><span>${t('email')}</span><input name="email" type="email" required autocomplete="email" placeholder="${t('emailPh')}"></label>
+      <div class="err" id="authErr"></div>
+      <button class="btn full y" id="authBtn">${t('sendLink')} →</button>
+      <p style="text-align:center;margin-top:16px"><button type="button" class="linkbtn" data-mode="login">${t('back')}</button></p>
+    </form>`;
+  } else if (mode==='recovery'){
+    title = t('newPassTitle'); sub = t('newPassSub');
+    formHtml = `<form id="authForm">
+      <label class="f"><span>${t('pass')}${t('passMin')}</span><input name="pass" type="password" required minlength="6" autocomplete="new-password"></label>
+      <div class="err" id="authErr"></div>
+      <button class="btn full g" id="authBtn">${t('savePass')} →</button>
+    </form>`;
+  } else {
+    title = login ? t('welcome') : t('create'); sub = login ? t('loginSub') : t('signupSub');
+    formHtml = `
+    <div class="seg">
+      <button data-mode="login" class="${login?'on':''}">${t('login')}</button>
+      <button data-mode="signup" class="${signup?'on':''}">${t('signup')}</button>
+    </div>
+    <form id="authForm" autocomplete="on">
+      ${login ? '' : `
+        <div class="roles">
+          <button type="button" data-role="student" class="st ${S.role==='student'?'on':''}">🎒 ${t('student')}<small>${t('studentSub')}</small></button>
+          <button type="button" data-role="teacher" class="te ${S.role==='teacher'?'on':''}">📋 ${t('teacher')}<small>${t('teacherSub')}</small></button>
+        </div>
+        <div class="row2">
+          <label class="f"><span>${t('first')}</span><input name="first" required autocomplete="given-name"></label>
+          <label class="f"><span>${t('last')}</span><input name="last" required autocomplete="family-name"></label>
+        </div>`}
+      <label class="f"><span>${t('email')}</span><input name="email" type="email" required autocomplete="email" placeholder="${t('emailPh')}"></label>
+      <label class="f"><span>${t('pass')}${login?'':t('passMin')}</span><input name="pass" type="password" required minlength="${login?1:6}" autocomplete="${login?'current-password':'new-password'}"></label>
+      ${signup ? `<label class="f ${S.role==='teacher'?'':'hidden'}" id="codeField"><span>${t('teacherCode')}</span><input name="code" autocomplete="off" placeholder="${t('teacherCodeHint')}"></label>` : ''}
+      <div class="err" id="authErr"></div>
+      <button class="btn full ${login?'y':'g'}" id="authBtn">${login?t('login'):t('signup')} →</button>
+      ${login ? `<p style="text-align:center;margin-top:16px"><button type="button" class="linkbtn" data-mode="forgot">${t('forgot')}</button></p>` : ''}
+    </form>`;
+  }
+  $('#app').innerHTML = `
+  <div class="auth">
+   <div class="hero">
+    ${LOGO(true)}
+    <p class="tag">${t('tagline')}</p>
+    <ul class="feats">
+      <li><i class="y">📅</i>${t('f1')}</li>
+      <li><i class="g">✓</i>${t('f2')}</li>
+      <li><i class="y">💬</i>${t('f3')}</li>
+    </ul>
+   </div>
+   <div class="formside">
+    <div class="authtop">${langSwitch()}</div>
+    <h1>${title}</h1>
+    <p class="sub">${sub}</p>
+    ${!CONFIGURED ? `<div class="note-box">${t('noConfig')}</div>` : ''}
+    ${S.authNote ? `<div class="note-box ok">${esc(S.authNote)}</div>` : ''}
+    ${formHtml}
+   </div>
+  </div>`;
+  bindLang();
+  document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{ S.authMode=b.dataset.mode; S.authNote=''; renderAuth() });
+  document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{
+    S.role=b.dataset.role; document.querySelectorAll('[data-role]').forEach(x=>x.classList.toggle('on',x===b));
+    const cf=$('#codeField'); if (cf){ cf.classList.toggle('hidden', S.role!=='teacher'); cf.querySelector('input').required = S.role==='teacher' }
+  });
+  const cf=$('#codeField'); if (cf) cf.querySelector('input').required = S.role==='teacher';
+  $('#authForm').onsubmit = onAuth;
+  const first = $('#authForm input'); first && first.focus();
+}
+
+async function onAuth(ev){
+  ev.preventDefault();
+  const f = new FormData(ev.target), err = $('#authErr'), btn = $('#authBtn');
+  const email = (f.get('email')||'').trim().toLowerCase(), pass = f.get('pass')||'';
+  err.textContent=''; S.authNote='';
+  if (!CONFIGURED){ err.textContent = t('noConfig'); return }
+  btn.disabled = true;
+  try{
+    if (S.authMode==='login'){
+      await q(sb.auth.signInWithPassword({ email, password: pass }));
+      // onAuthStateChange atidarys programą
+    } else if (S.authMode==='signup'){
+      if (pass.length<6){ err.textContent=t('errShort'); btn.disabled=false; return }
+      const { data, error } = await sb.auth.signUp({ email, password: pass, options: {
+        emailRedirectTo: REDIRECT,
+        data: { first_name:(f.get('first')||'').trim(), last_name:(f.get('last')||'').trim(), role:S.role, teacher_code:(f.get('code')||'').trim() } } });
+      if (error){ err.textContent = signupErr(error, S.role); btn.disabled=false; return }
+      if (!data.session){
+        // Supabase grąžina user be identities, jei el. paštas jau užregistruotas
+        if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0){ err.textContent=t('errExists'); btn.disabled=false; return }
+        S.authMode='login'; S.authNote=t('checkEmail'); renderAuth(); return;
+      }
+      toast(t('created'));
+    } else if (S.authMode==='forgot'){
+      await q(sb.auth.resetPasswordForEmail(email, { redirectTo: REDIRECT }));
+      S.authMode='login'; S.authNote=t('linkSent'); renderAuth(); return;
+    } else if (S.authMode==='recovery'){
+      if (pass.length<6){ err.textContent=t('errShort'); btn.disabled=false; return }
+      await q(sb.auth.updateUser({ password: pass }));
+      S.authMode='login'; toast(t('passSaved'));
+      const { data:{ session } } = await sb.auth.getSession();
+      if (session) return startSession(session.user);
+      renderAuth(); return;
+    }
+  }catch(e){ err.textContent = errMsg(e); btn.disabled=false }
+}
+
+/* ---------- Sesija ---------- */
+async function startSession(user){
+  if ((S.me && S.me.key === user.id) || S.starting === user.id) return;
+  S.starting = user.id;
+  try{ await _start(user) } finally { S.starting = null }
+}
+async function _start(user){
+  let p = null;
+  for (let i=0;i<3 && !p;i++){
+    try{ p = (await q(sb.from('profiles').select('*').eq('id', user.id).maybeSingle())) }catch(e){}
+    if (!p) await new Promise(r=>setTimeout(r,500));
+  }
+  if (!p){ await sb.auth.signOut(); S.authNote = t('errGeneric'); renderAuth(); return }
+  S.me = { key:p.id, email:p.email, first:p.first_name, last:p.last_name, role:p.role };
+  S.seenAt = ms(p.seen_at); S.lastN = null; S.sessionStart = Date.now(); S.loaded = false;
+  renderApp();
+  await loadAll();
+  subscribe();
+}
+async function logout(){
+  if (S.channel){ sb.removeChannel(S.channel); S.channel=null }
+  Object.assign(S,{me:null, jobs:[], signups:[], messages:[], loaded:false, authMode:'login', role:'student', newOpen:false, prefill:null, selDay:null, calMonth:null, openChat:{}, drafts:{}, lastN:null, authNote:''});
+  renderAuth();
+  try{ await sb.auth.signOut() }catch(e){}
+}
+
+/* ---------- Duomenys ---------- */
+let loading = null, again = false;
+async function loadAll(){
+  if (loading){ again = true; return loading }
+  loading = (async () => {
+    try{
+      const since = plusDays(-365);
+      const [jobs, signups, msgs] = await Promise.all([
+        q(sb.from('jobs').select('*').gte('date', since).order('date')),
+        q(sb.from('signups').select('*')),
+        q(sb.from('messages').select('*').order('created_at').limit(5000))
+      ]);
+      S.jobs = jobs.map(mapJob); S.signups = signups.map(mapSignup); S.messages = msgs.map(mapMsg);
+      S.loaded = true;
+      if (S.me){ checkNew(); renderApp() }
+    }catch(e){ S.loaded = true; S.me && renderApp(); toast(errMsg(e)) }
+  })();
+  await loading; loading = null;
+  if (again){ again = false; return loadAll() }
+}
+let reloadT;
+function subscribe(){
+  if (S.channel) return;
+  const kick = () => { clearTimeout(reloadT); reloadT = setTimeout(loadAll, 250) };
+  S.channel = sb.channel('socialy')
+    .on('postgres_changes', { event:'*', schema:'public', table:'jobs' }, kick)
+    .on('postgres_changes', { event:'*', schema:'public', table:'signups' }, kick)
+    .on('postgres_changes', { event:'*', schema:'public', table:'messages' }, kick)
+    .subscribe();
+}
+// Atsarginis atnaujinimas, jei realtime neveikia
+setInterval(() => { if (S.me && document.visibilityState === 'visible') loadAll() }, 60000);
+document.addEventListener('visibilitychange', () => { if (S.me && document.visibilityState === 'visible') loadAll() });
+
+/* --- Pranešimai --- */
+function ago(ts){
+  const s = Math.max(0, (Date.now()-ts)/1000);
+  if (s<60) return t('justNow');
+  if (s<3600) return t('minAgo', Math.floor(s/60));
+  if (s<86400) return t('hAgo', Math.floor(s/3600));
+  return t('shortDate', new Date(ts), t('mon'));
+}
+function notifs(){
+  const me=S.me, isT=me.role==='teacher', out=[];
+  const J = Object.fromEntries(S.jobs.map(j=>[j.id,j]));
+  let rel;
+  if (isT){
+    rel = new Set(S.jobs.filter(j=>j.teacherKey===me.key).map(j=>j.id));
+    S.signups.filter(s=>rel.has(s.jobId) && (s.at||0)>S.seenAt).forEach(s=>out.push({
+      at:s.at, jobId:s.jobId, text:t('nSigned', s.studentName, J[s.jobId].title),
+      html:'🙋 ' + t('nSigned', `<b class="y">${esc(s.studentName)}</b>`, esc(J[s.jobId].title))}));
+  } else {
+    const mine = S.signups.filter(s=>s.studentKey===me.key);
+    rel = new Set(mine.map(s=>s.jobId));
+    mine.filter(s=>s.status!=='registered' && (s.statusAt||0)>S.seenAt && J[s.jobId]).forEach(s=>out.push({
+      at:s.statusAt, jobId:s.jobId, text:`${J[s.jobId].title}: ${s.status==='done'?t('nDone'):t('nFailed')}`,
+      html: s.status==='done' ? `✅ ${esc(J[s.jobId].title)} – <b class="g">${t('nDone')}, +${esc(s.hours)} ${t('hrs')}</b>`
+                              : `❌ ${esc(J[s.jobId].title)} – <b class="r">${t('nFailed')}</b>`}));
+  }
+  S.messages.filter(m=>rel.has(m.jobId) && m.authorKey!==me.key && (m.at||0)>S.seenAt && J[m.jobId]).forEach(m=>out.push({
+    at:m.at, jobId:m.jobId, chat:true, text:`${m.authorName}: ${m.text}`,
+    html:`💬 <b class="${m.role==='teacher'?'g':'y'}">${esc(m.authorName)}</b> <span class="m">(${esc(J[m.jobId].title)})</span>: ${esc(m.text.length>80?m.text.slice(0,80)+'…':m.text)}`}));
+  return out.sort((a,b)=>b.at-a.at);
+}
+function checkNew(){
+  const n = notifs();
+  if (S.lastN!=null && n.length > S.lastN && Date.now()-S.sessionStart > 2500) toast('🔔 ' + n[0].text);
+  S.lastN = n.length;
+}
+function notifPanel(){
+  const n = notifs(); if (!n.length) return '';
+  return `<div class="notif">
+    <div class="nh"><b>🔔 ${t('news')} <span class="cnt">${n.length}</span></b><button class="linkbtn" data-seen>${t('markRead')}</button></div>
+    ${n.slice(0,6).map(x=>`<button class="ni" data-goto="${esc(x.jobId)}" data-gochat="${x.chat?1:''}"><span>${x.html}</span><span class="m t">${ago(x.at)}</span></button>`).join('')}
+    ${n.length>6?`<div class="m" style="font-size:13px;padding:6px 4px 0">${t('andMore', n.length-6)}</div>`:''}
+  </div>`;
+}
+
+/* ---------- APP ---------- */
+const fullName = p => `${p.first||''} ${p.last||''}`.trim();
+function renderApp(){
+  if (!S.me) return renderAuth();
+  const ae = document.activeElement;
+  if (S.newOpen && ae && ae.closest && ae.closest('#newJob')) return;
+  const keep = ae && ae.dataset ? ae.dataset.keep : null;
+  const sel = keep ? [ae.selectionStart, ae.selectionEnd] : null;
+  const scrolls = {}; document.querySelectorAll('[data-msgs]').forEach(el => scrolls[el.dataset.msgs] = el.scrollHeight - el.scrollTop - el.clientHeight < 40);
+  const isT = S.me.role==='teacher';
+  $('#app').innerHTML = `
+    <header class="top">
+      ${LOGO(false)}
+      <div class="who"><span class="nmfull"><b>${esc(fullName(S.me))}</b></span><span class="badge ${isT?'te':'st'}">${isT?t('teacher'):t('student')}</span>${langSwitch()}<button class="linkbtn" id="logout">${t('logout')}</button></div>
+    </header>
+    ${(() => { const v = isT ? teacherView() : studentView(); return `<div class="cols"><aside class="side">${v.side}</aside><main class="main">${S.loaded ? notifPanel() : ''}${v.main}</main></div>` })()}`;
+  $('#logout').onclick = logout;
+  bindLang();
+  bindView();
+  document.querySelectorAll('[data-msgs]').forEach(el => { if (scrolls[el.dataset.msgs] !== false) el.scrollTop = el.scrollHeight });
+  if (keep){ const el = document.querySelector(`[data-keep="${keep}"]`); if (el){ el.focus(); try{ el.setSelectionRange(sel[0], sel[1]) }catch(e){} } }
+}
+
+/* --- Kalendorius --- */
+function calendar(marksFor, legend){
+  const now=new Date();
+  if(!S.calMonth) S.calMonth={y:now.getFullYear(), m:now.getMonth()};
+  const {y,m}=S.calMonth, first=new Date(y,m,1), start=(first.getDay()+6)%7, td=today();
+  let cells='';
+  for(let i=0;i<42;i++){
+    const d=new Date(y,m,1-start+i), k=ymd(d), out=d.getMonth()!==m;
+    if(i>=35 && out && d.getDate()<8) break;
+    const marks=marksFor(k);
+    cells+=`<button class="d ${out?'out':''} ${k<td?'past':''} ${k===td?'today':''} ${S.selDay===k?'sel':''}" data-day="${k}">${d.getDate()}<span class="dots">${marks.slice(0,3).map(c=>`<i class="${c}"></i>`).join('')}</span></button>`;
+  }
+  return `<div class="cal">
+    <div class="ch"><button class="nav" data-cal="-1">‹</button><b>${t('months')[m]} ${y}</b><button class="nav" data-cal="1">›</button></div>
+    <div class="grid">${t('wd').map(w=>`<div class="wd">${w}</div>`).join('')}${cells}</div>
+    <div class="leg">${legend}</div>
+  </div>`;
+}
+function dayBlock(jobs, cardFn){
+  return `<h2><span>${esc(fmtDate(S.selDay))}</span><button class="linkbtn" data-dayclear style="text-transform:none;letter-spacing:0">${t('showAll')}</button></h2>
+    <div class="list">${jobs.length?jobs.map(cardFn).join(''):`<div class="empty">${t('noJobsDay')}</div>`}</div>`;
+}
+function byDate(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')) }
+const isActive = s => s.status!=='failed';
+function taken(jobId){ return S.signups.filter(s=>s.jobId===jobId && isActive(s)).length }
+function shortName(n){ const p=String(n||'').split(' '); return p.length>1 ? p[0]+' '+p[p.length-1][0]+'.' : n }
+
+/* --- Pokalbis --- */
+function chatBlock(j){
+  const msgs = S.messages.filter(m=>m.jobId===j.id).sort((a,b)=>a.at-b.at);
+  const open = S.openChat[j.id];
+  const unread = msgs.filter(m=>m.authorKey!==S.me.key && m.at>S.seenAt).length;
+  const btn = `<button class="chatbtn ${open?'on':''}" data-chat="${esc(j.id)}">💬 ${open?t('hideComments'):t('comments')}${msgs.length?` · ${msgs.length}`:''}${unread&&!open?` <span class="cnt">${t('nNew', unread)}</span>`:''}</button>`;
+  if (!open) return `<div class="chatrow">${btn}</div>`;
+  return `<div class="chatrow">${btn}</div>
+  <div class="chat">
+    <div class="msgs" data-msgs="${esc(j.id)}">
+      ${msgs.length ? msgs.map(m=>`
+        <div class="msg ${m.authorKey===S.me.key?'me':''}">
+          <div class="mh"><b class="${m.role==='teacher'?'g':'y'}">${m.authorKey===S.me.key?t('you'):esc(m.authorName)}</b>${m.role==='teacher'?`<span class="badge te">${t('teacherBadge')}</span>`:''}<span class="m">${ago(m.at)}</span></div>
+          <div class="mt">${esc(m.text)}</div>
+        </div>`).join('') : `<div class="m" style="font-size:14px;text-align:center;padding:10px">${t('noComments')}</div>`}
+    </div>
+    <form class="send" data-send="${esc(j.id)}">
+      <input data-keep="chat-${esc(j.id)}" data-draft="${esc(j.id)}" placeholder="${t('writeComment')}" value="${esc(S.drafts[j.id]||'')}" maxlength="1000" autocomplete="off">
+      <button class="btn sm y">${t('send')}</button>
+    </form>
+  </div>`;
+}
+
+/* --- Mokinys --- */
+function studentView(){
+  const mine = S.signups.filter(s => s.studentKey===S.me.key);
+  const mineBy = Object.fromEntries(mine.map(x=>[x.jobId,x]));
+  const earned = mine.filter(s=>s.status==='done').reduce((a,s)=>a+(+s.hours||0),0);
+  const pending = mine.filter(s=>s.status==='registered');
+  const jobsById = Object.fromEntries(S.jobs.map(j=>[j.id,j]));
+  const open = S.jobs.filter(j => j.date >= today() && !mineBy[j.id]).sort(byDate);
+  const myList = mine.map(s=>({s, j:jobsById[s.jobId]})).filter(x=>x.j).sort((a,b)=>byDate(b.j,a.j));
+  const cal = calendar(k => S.jobs.filter(j=>j.date===k).sort(byDate).map(j => { const x=mineBy[j.id]; return x ? (x.status==='done'?'g':x.status==='failed'?'r':'o') : 'y' }),
+    `<span><i></i>${t('lgFree')}</span><span><i class="o"></i>${t('lgReg')}</span><span><i class="g"></i>${t('lgDone')}</span><span><i class="r"></i>${t('lgFail')}</span>`);
+  const dayJobs = S.jobs.filter(j=>j.date===S.selDay).sort(byDate);
+  return { side: `
+    <div class="stats">
+      <div class="stat"><div class="n g">${earned}</div><div class="l">${t('earned')}</div></div>
+      <div class="stat"><div class="n y">${pending.reduce((a,s)=>a+(+s.hours||0),0)}</div><div class="l">${t('pending')}</div></div>
+      <div class="stat"><div class="n">${open.length}</div><div class="l">${t('freeJobs')}</div></div>
+    </div>
+    ${cal}`, main: `
+    ${S.selDay ? dayBlock(dayJobs, j=>jobCard(j,{mine:mineBy[j.id]})) : `
+      <h2>${t('freeJobs')}</h2>
+      <div class="list">${!S.loaded ? `<div class="empty">${t('loading')}</div>` : open.length ? open.map(j=>jobCard(j,{})).join('') : `<div class="empty">${t('noFree')}</div>`}</div>
+      ${myList.length ? `<h2>${t('myJobs')}</h2><div class="list">${myList.map(({s,j})=>jobCard(j,{mine:s})).join('')}</div>` : ''}`}` };
+}
+
+function jobCard(j, {mine}){
+  const ppl = S.signups.filter(s=>s.jobId===j.id && isActive(s));
+  const left = Math.max(0,(+j.spots||0) - ppl.length);
+  const past = j.date < today();
+  let action, cls='';
+  if (mine && mine.status==='done'){ cls='done'; action = `<span class="status g">${t('doneHrs', esc(mine.hours))}</span>` }
+  else if (mine && mine.status==='failed'){ cls='failed'; action = `<span class="status r">${t('notDone')}</span>` }
+  else if (mine){ cls='mine'; action = past ? `<span class="status y">${t('waitConfirm')}</span>`
+                               : `<span class="status y">${t('registered')}</span><button class="btn sm out-r" data-unreg="${esc(mine.id)}">${t('cancel')}</button>` }
+  else action = past ? `<span class="m">${t('happened')}</span>` : left>0 ? `<span class="m">${t('spotsLeft', left)}</span><button class="btn sm y" data-reg="${esc(j.id)}">${t('register')}</button>`
+                       : `<span class="m">${t('noSpots')}</span>`;
+  return `
+  <div class="job ${cls}">
+    <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">+${esc(j.hours)} ${t('hrs')}</span></div>
+    <div class="meta"><span class="y">📅 ${esc(fmtDate(j.date))}${j.time?' · '+esc(j.time):''}</span><span>📍 ${esc(j.place)}</span><span class="m">👤 ${esc(j.teacherName)}</span></div>
+    ${j.task?`<div class="task">${esc(j.task)}</div>`:''}
+    ${ppl.length?`<div class="who2">👥 ${t('signedUpList', ppl.length, esc(j.spots))}: ${ppl.map(s=>`<span class="${s.studentKey===S.me.key?'y':''}">${esc(shortName(s.studentName))}</span>`).join(', ')}</div>`:''}
+    <div class="foot">${action}</div>
+    ${chatBlock(j)}
+  </div>`;
+}
+
+/* --- Mokytojas --- */
+function teacherView(){
+  const my = S.jobs.filter(j=>j.teacherKey===S.me.key);
+  const up = my.filter(j=>j.date>=today()).sort(byDate);
+  const past = my.filter(j=>j.date<today()).sort((a,b)=>byDate(b,a));
+  const hasPend = j => S.signups.some(s=>s.jobId===j.id && s.status==='registered');
+  const myIds = new Set(my.map(j=>j.id));
+  const mySign = S.signups.filter(s=>myIds.has(s.jobId));
+  const toConfirm = mySign.filter(s=>s.status==='registered' && (S.jobs.find(j=>j.id===s.jobId)||{}).date < today()).length;
+  const totalSigned = mySign.filter(s=>s.status==='registered').length;
+  const tot = {};
+  S.signups.filter(s=>s.status==='done').forEach(s=>{ (tot[s.studentKey] ||= {name:s.studentName, h:0}).h += (+s.hours||0) });
+  const totRows = Object.values(tot).sort((a,b)=>b.h-a.h);
+  const cal = calendar(k => [...my.filter(j=>j.date===k).map(()=> 'g'), ...S.jobs.filter(j=>j.date===k && j.teacherKey!==S.me.key).map(()=>'y')],
+    `<span><i class="g"></i>${t('lgMine')}</span><span><i></i>${t('lgOther')}</span>`);
+  const dayJobs = S.jobs.filter(j=>j.date===S.selDay).sort(byDate);
+  const canAdd = S.selDay && S.selDay>=today();
+  const pastPend = past.filter(hasPend), pastRest = past.filter(j=>!hasPend(j));
+  return { side: `
+    <div class="stats">
+      <div class="stat"><div class="n y">${totalSigned}</div><div class="l">${t('signedStudents')}</div></div>
+      <div class="stat"><div class="n">${toConfirm}</div><div class="l">${t('pending')}</div></div>
+      <div class="stat"><div class="n g">${mySign.filter(s=>s.status==='done').reduce((a,s)=>a+(+s.hours||0),0)}</div><div class="l">${t('givenHrs')}</div></div>
+    </div>
+    ${S.newOpen ? newJobForm() : `<button class="btn g full" id="openNew" style="margin-bottom:10px">${t('newJob')}${canAdd?' – '+esc(fmtDate(S.selDay)):''}</button>`}
+    ${cal}
+    ${totRows.length ? `<h2 class="sideh">${t('studentHours')}</h2><div class="tbl">${totRows.map(r=>`<div class="tr"><span>${esc(r.name)}</span><b class="g">${r.h} ${t('hrs')}</b></div>`).join('')}</div>` : ''}`, main: `
+    ${S.selDay ? dayBlock(dayJobs, j => j.teacherKey===S.me.key ? teacherCard(j) : otherCard(j)) : `
+      ${pastPend.length ? `<h2>${t('needConfirm')}</h2><div class="list">${pastPend.map(teacherCard).join('')}</div>`:''}
+      <h2>${t('upcoming')}</h2>
+      <div class="list">${!S.loaded ? `<div class="empty">${t('loading')}</div>` : up.length ? up.map(teacherCard).join('') : `<div class="empty">${t('noUpcoming')}</div>`}</div>
+      ${pastRest.length ? `<h2>${t('pastJobs')}</h2><div class="list">${pastRest.map(teacherCard).join('')}</div>` : ''}`}` };
+}
+function teacherCard(j){
+  const ppl = S.signups.filter(s=>s.jobId===j.id).sort((a,b)=>(a.at||0)-(b.at||0));
+  const isPast = j.date < today();
+  const del = S.confirmDel===j.id;
+  const failed = ppl.filter(s=>s.status==='failed');
+  const pend = ppl.filter(s=>s.status==='registered');
+  return `
+  <div class="job ${isPast && !pend.length?'past':''}">
+    <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">+${esc(j.hours)} ${t('hrs')}</span></div>
+    <div class="meta"><span class="y">📅 ${esc(fmtDate(j.date))}${j.time?' · '+esc(j.time):''}</span><span>📍 ${esc(j.place)}</span><span class="m">👥 ${t('nSignedUp', taken(j.id), esc(j.spots))}</span></div>
+    ${j.task?`<div class="task">${esc(j.task)}</div>`:''}
+    <div class="ppl">
+      ${ppl.length ? ppl.map(s=>`
+        <div class="p ${s.status==='done'?'ok':s.status==='failed'?'bad':''}">
+          <span><span class="nm">${s.status==='done'?'✓ ':s.status==='failed'?'✕ ':''}${esc(s.studentName)}</span>
+            <small class="m">${s.status==='done'?t('jobDone', esc(s.hours)):s.status==='failed'?t('jobFailed'):t('signedAgo', ago(s.at))}</small></span>
+          <span class="acts">${s.status==='registered'
+            ? `<button class="btn sm out-g" data-ok="${esc(s.id)}">${t('btnDone')}</button><button class="btn sm out-r" data-fail="${esc(s.id)}">${t('btnFail')}</button>`
+            : `<button class="linkbtn" data-undo="${esc(s.id)}">${t('change')}</button>`}
+          </span>
+        </div>`).join('') : `<span class="m" style="font-size:14px">${t('nobody')}</span>`}
+      ${pend.length>1 ? `<div style="text-align:right;margin-top:4px"><button class="btn sm g" data-okall="${esc(j.id)}">${t('allDone')}</button></div>`:''}
+    </div>
+    ${failed.length > (+j.relistedCount||0) ? `<div class="relist"><span>${t('relistQ', failed.length)}</span><button class="btn sm y" data-relist="${esc(j.id)}">${t('relistBtn')}</button></div>`:''}
+    ${chatBlock(j)}
+    <div class="foot" style="margin-top:10px;justify-content:flex-end">
+      ${del ? `<span class="m">${t('delQ')}</span><button class="btn sm ghost" data-delno>${t('no')}</button><button class="btn sm" style="background:var(--r);color:#000" data-delyes="${esc(j.id)}">${t('yesDel')}</button>`
+            : `<button class="linkbtn" data-del="${esc(j.id)}">${t('del')}</button>`}
+    </div>
+  </div>`;
+}
+function otherCard(j){
+  return `<div class="job ${j.date<today()?'past':''}">
+    <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">+${esc(j.hours)} ${t('hrs')}</span></div>
+    <div class="meta"><span class="y">${j.time?'🕑 '+esc(j.time):''}</span><span>📍 ${esc(j.place)}</span><span class="m">👤 ${esc(j.teacherName)} · 👥 ${taken(j.id)}/${esc(j.spots)}</span></div>
+    ${chatBlock(j)}
+  </div>`;
+}
+function newJobForm(){
+  const p = S.prefill || {};
+  const dflt = p.date || (S.selDay && S.selDay>=today() ? S.selDay : plusDays(1));
+  return `
+  <form class="newjob" id="newJob">
+    <h3 class="g">${p.title ? t('relistTitle') : t('newJobTitle')}</h3>
+    <label class="f"><span>${t('fTitle')}</span><input name="title" required placeholder="${t('fTitlePh')}" value="${esc(p.title||'')}"></label>
+    <label class="f"><span>${t('fPlace')}</span><input name="place" required placeholder="${t('fPlacePh')}" value="${esc(p.place||'')}"></label>
+    <div class="row2">
+      <label class="f"><span>${t('fDate')}</span><input name="date" type="date" required value="${dflt}" min="${today()}"></label>
+      <label class="f"><span>${t('fTime')}</span><input name="time" type="time" value="${esc(p.time||'14:00')}"></label>
+    </div>
+    <div class="row2">
+      <label class="f"><span>${t('fHours')}</span><input name="hours" type="number" min="0.5" step="0.5" value="${esc(p.hours||2)}" required></label>
+      <label class="f"><span>${t('fSpots')}</span><input name="spots" type="number" min="1" value="${esc(p.spots||5)}" required></label>
+    </div>
+    <label class="f"><span>${t('fTask')}</span><textarea name="task" placeholder="${t('fTaskPh')}">${esc(p.task||'')}</textarea></label>
+    <div class="err" id="jobErr"></div>
+    <div class="row2"><button type="button" class="btn ghost" id="cancelNew">${t('cancel')}</button><button class="btn g">${t('publish')}</button></div>
+  </form>`;
+}
+
+
+
+/* --- Veiksmai --- */
+async function act(fn, okMsg){
+  try{ await fn(); if(okMsg) toast(okMsg); await loadAll() }catch(e){ toast(errMsg(e)); await loadAll() }
+}
+function bindView(){
+  const on = (sel, fn) => document.querySelectorAll(sel).forEach(b=>b.onclick=()=>fn(b));
+  on('[data-seen]', () => { S.seenAt = Date.now(); S.lastN = 0; renderApp();
+    sb.from('profiles').update({ seen_at: new Date(S.seenAt).toISOString() }).eq('id', S.me.key).then(()=>{}) });
+  on('[data-goto]', b => {
+    const j = S.jobs.find(x=>x.id===b.dataset.goto); if (!j) return;
+    S.selDay = j.date; const d=new Date(j.date+'T00:00'); S.calMonth={y:d.getFullYear(), m:d.getMonth()};
+    if (b.dataset.gochat) S.openChat[j.id] = true;
+    renderApp(); const el = document.querySelector('[data-dayclear]'); el && el.scrollIntoView({behavior:'smooth', block:'start'});
+    if (b.dataset.gochat){ const i=document.querySelector(`[data-keep="chat-${j.id}"]`); i && i.focus({preventScroll:true}) }
+  });
+  on('[data-cal]', b => { const c=S.calMonth, d=new Date(c.y, c.m + +b.dataset.cal, 1); S.calMonth={y:d.getFullYear(), m:d.getMonth()}; renderApp() });
+  on('[data-day]', b => { const k=b.dataset.day; S.selDay = S.selDay===k ? null : k; const d=new Date(k+'T00:00'); S.calMonth={y:d.getFullYear(), m:d.getMonth()}; renderApp() });
+  on('[data-dayclear]', () => { S.selDay=null; renderApp() });
+  on('[data-chat]', b => { const id=b.dataset.chat; S.openChat[id] = !S.openChat[id]; renderApp(); if (S.openChat[id]){ const el=document.querySelector(`[data-keep="chat-${id}"]`); el && el.focus() } });
+  document.querySelectorAll('[data-draft]').forEach(i => i.oninput = () => { S.drafts[i.dataset.draft] = i.value });
+  document.querySelectorAll('[data-send]').forEach(f => f.onsubmit = async ev => {
+    ev.preventDefault();
+    const jobId = f.dataset.send, inp = f.querySelector('input'), text = inp.value.trim();
+    if (!text) return;
+    S.drafts[jobId] = ''; inp.value = '';
+    try{ await q(sb.from('messages').insert({ job_id:jobId, text, author_id:S.me.key })); await loadAll() }
+    catch(e){ S.drafts[jobId] = text; renderApp(); toast(errMsg(e)) }
+  });
+  on('[data-reg]', b => {
+    const j = S.jobs.find(x=>x.id===b.dataset.reg); if(!j) return;
+    if (taken(j.id) >= +j.spots) return toast(t('noSpots'));
+    b.disabled = true;
+    act(() => q(sb.from('signups').insert({ job_id:j.id, student_id:S.me.key })), t('tRegistered'));
+  });
+  on('[data-unreg]', b => { b.disabled=true; act(() => q(sb.from('signups').delete().eq('id', b.dataset.unreg)), t('tUnreg')) });
+  on('#openNew', () => { S.newOpen = true; S.prefill = null; renderApp(); $('#newJob input[name=title]').focus() });
+  on('#cancelNew', () => { S.newOpen = false; S.prefill = null; renderApp() });
+  on('[data-relist]', b => {
+    const j = S.jobs.find(x=>x.id===b.dataset.relist); if (!j) return;
+    const nFail = S.signups.filter(s=>s.jobId===j.id && s.status==='failed').length;
+    S.prefill = { fromJobId:j.id, failedCount:nFail, title:j.title, place:j.place, time:j.time, hours:j.hours, task:j.task, spots:nFail || j.spots, date: plusDays(1) };
+    S.newOpen = true; S.selDay = null; renderApp();
+    const f = $('#newJob'); f.scrollIntoView({behavior:'smooth', block:'start'}); f.querySelector('[name=date]').focus();
+  });
+  const nf = $('#newJob');
+  if (nf) nf.onsubmit = async ev => {
+    ev.preventDefault();
+    const f = new FormData(nf), btn = nf.querySelector('button:not([type=button])');
+    btn.disabled = true;
+    const job = { title:f.get('title').trim(), place:f.get('place').trim(), date:f.get('date'), time:f.get('time')||'',
+      hours:+f.get('hours'), spots:+f.get('spots'), task:(f.get('task')||'').trim(), teacher_id:S.me.key };
+    const p = S.prefill;
+    try{
+      await q(sb.from('jobs').insert(job));
+      if (p && p.fromJobId) await q(sb.from('jobs').update({ relisted_count: p.failedCount }).eq('id', p.fromJobId));
+      S.newOpen=false; S.prefill=null; document.activeElement.blur(); toast(p ? t('tRepublished') : t('tPublished')); await loadAll(); renderApp();
+    }catch(e){ $('#jobErr').textContent = errMsg(e); btn.disabled=false }
+  };
+  const setStatus = (id, status) => q(sb.from('signups').update({ status }).eq('id', id));
+  on('[data-ok]',   b => { b.disabled=true; act(()=>setStatus(b.dataset.ok,'done'), t('tDone')) });
+  on('[data-fail]', b => { b.disabled=true; act(()=>setStatus(b.dataset.fail,'failed'), t('tFail')) });
+  on('[data-undo]', b => { b.disabled=true; act(()=>setStatus(b.dataset.undo,'registered')) });
+  on('[data-okall]', b => { b.disabled=true; act(() => q(sb.from('signups').update({ status:'done' }).eq('job_id', b.dataset.okall).eq('status','registered')), t('tAll')) });
+  on('[data-del]', b => { S.confirmDel = b.dataset.del; renderApp() });
+  on('[data-delno]', () => { S.confirmDel = null; renderApp() });
+  on('[data-delyes]', b => { const id=b.dataset.delyes; S.confirmDel=null; act(() => q(sb.from('jobs').delete().eq('id', id)), t('tDeleted')) });
+}
+
+/* ---------- Paleidimas ---------- */
+(async function init(){
+  document.documentElement.lang = LANG;
+  if (!CONFIGURED){ renderAuth(); return }
+  $('#app').innerHTML = `<div class="auth"><div class="hero">${LOGO(true)}<p class="sub" style="margin-top:24px">${t('loading')}</p></div></div>`;
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY'){ S.authMode = 'recovery'; S.me = null; renderAuth(); return }
+    if (S.authMode === 'recovery') return;
+    if (session && session.user){ setTimeout(() => startSession(session.user), 0) }
+    else if (event === 'SIGNED_OUT' && S.me){ logout() }
+  });
+  const { data:{ session } } = await sb.auth.getSession();
+  if (location.hash.includes('type=recovery')) return;
+  if (session) startSession(session.user); else renderAuth();
+})();
+</script>
+</body>
+</html>
