@@ -55,7 +55,7 @@
   input:focus,select:focus,textarea:focus{border-color:var(--y)}
   textarea{resize:vertical;min-height:80px}
   input[type=date],input[type=time]{color-scheme:var(--cs)}
-  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end}
   .roles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
   .roles button{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 10px;cursor:pointer;font-weight:600;text-align:center}
   .roles button small{display:block;font-weight:400;color:var(--muted);font-size:12px;margin-top:2px}
@@ -218,11 +218,27 @@
   .fchip small{color:var(--muted);flex:none}
   .fchip[href]:hover{border-color:var(--y)}
   .flabel{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-  .fadd{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border:1px dashed var(--line);border-radius:10px;cursor:pointer;font-size:14px;color:var(--text)}
+  div.f{margin-bottom:14px}
+  .fadd{background:transparent;font-family:inherit;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border:1px dashed var(--line);border-radius:10px;cursor:pointer;font-size:14px;color:var(--text)}
   .fadd:hover{border-color:var(--g);color:var(--gt)}
   .fsel{display:flex;align-items:center;gap:8px;font-size:14px;padding:6px 2px}
   .fsel span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .fhint{display:block;margin-top:6px;font-size:12px}
+  .trow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .trow input{flex:1}
+  .trow .linkbtn{width:28px;text-decoration:none;font-size:15px}
+  #timeList .trow:only-child [data-rmtime]{visibility:hidden}
+  .slots{width:100%}
+  .slots>.m{display:block;font-size:13px;margin-bottom:8px}
+  .slotrow{display:flex;flex-wrap:wrap;gap:8px}
+  .slot{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:78px;padding:8px 12px;border-radius:10px;border:1px solid var(--y);background:transparent;color:var(--text);cursor:pointer;font-family:inherit;transition:background .15s}
+  .slot b{font-size:16px}
+  .slot small{font-size:11px;color:var(--muted)}
+  button.slot:hover{background:var(--y);color:#000}
+  button.slot:hover small{color:#000}
+  .slot.full{border-color:var(--line);opacity:.5;cursor:default}
+  .slotsum{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--text2);margin:-4px 0 10px}
+  .slotsum b{color:var(--text)}
   .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:9}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
   .hidden{display:none!important}
@@ -354,6 +370,8 @@ const I18N = {
 };
 
 Object.assign(I18N.lt, {
+  fTimes: 'Kada ateiti (galite nurodyti kelis laikus)', addTime: 'Pridėti laiką', fSpotsEach: 'Kiek mokinių reikia kiekvienam laikui',
+  chooseTime: 'Pasirinkite laiką:', slotLeft: n => `liko ${n}`, slotFull: 'užimta', errSlot: 'Pasirinkite laiką.', tRegisteredSlot: tm => `Užregistruota ${tm} laikui! 👋`,
   themeLight: 'Šviesus fonas', themeDark: 'Tamsus fonas',
   forgot: 'Pamiršote slaptažodį?', forgotTitle: 'Atkurti <span class="y">slaptažodį</span>',
   forgotSub: 'Atsiųsime nuorodą naujam slaptažodžiui nustatyti.', sendLink: 'Siųsti nuorodą',
@@ -374,6 +392,8 @@ Object.assign(I18N.lt, {
   noConfig: 'Svetainė dar nesukonfigūruota: index.html faile įrašykite SUPABASE_URL ir SUPABASE_ANON_KEY.'
 });
 Object.assign(I18N.en, {
+  fTimes: 'When to come (you can add several times)', addTime: 'Add a time', fSpotsEach: 'Students needed for each time',
+  chooseTime: 'Choose a time:', slotLeft: n => `${n} left`, slotFull: 'full', errSlot: 'Please choose a time.', tRegisteredSlot: tm => `Signed up for ${tm}! 👋`,
   themeLight: 'Light mode', themeDark: 'Dark mode',
   forgot: 'Forgot password?', forgotTitle: 'Reset <span class="y">password</span>',
   forgotSub: "We'll send you a link to set a new password.", sendLink: 'Send link',
@@ -426,6 +446,7 @@ function errMsg(e){
   if (/SOCIALY_BAD_TEACHER_CODE/.test(m)) return t('errCode');
   if (/SOCIALY_BAD_DOMAIN/.test(m)) return t('errDomain');
   if (/SOCIALY_FULL/.test(m)) return t('errFullDb');
+  if (/SOCIALY_BAD_SLOT/.test(m)) return t('errSlot');
   if (/SOCIALY_PAST/.test(m)) return t('errPast');
   if (/Invalid login credentials/i.test(m)) return t('errLogin');
   if (/Email not confirmed/i.test(m)) return t('notConfirmed');
@@ -448,8 +469,8 @@ const sb = CONFIGURED ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON
 const REDIRECT = location.origin + location.pathname;
 
 const mapJob = r => ({ id:r.id, title:r.title, place:r.place, date:r.date, time:r.time||'', hours:+r.hours, spots:r.spots, task:r.task||'',
-  teacherKey:r.teacher_id, teacherName:r.teacher_name, relistedCount:r.relisted_count||0, completed:!!r.completed, teacherHidden:!!r.teacher_hidden, files:Array.isArray(r.attachments)?r.attachments:[] });
-const mapSignup = r => ({ id:r.id, jobId:r.job_id, studentKey:r.student_id, studentName:r.student_name, hours:+r.hours,
+  teacherKey:r.teacher_id, teacherName:r.teacher_name, relistedCount:r.relisted_count||0, completed:!!r.completed, teacherHidden:!!r.teacher_hidden, files:Array.isArray(r.attachments)?r.attachments:[], times:Array.isArray(r.times)?r.times:[] });
+const mapSignup = r => ({ slot:r.slot||'', id:r.id, jobId:r.job_id, studentKey:r.student_id, studentName:r.student_name, hours:+r.hours,
   status:r.status, at:ms(r.created_at), statusAt:ms(r.status_at) });
 const mapMsg = r => ({ id:r.id, jobId:r.job_id, authorKey:r.author_id, authorName:r.author_name, role:r.role, text:r.text, at:ms(r.created_at) });
 
@@ -710,7 +731,7 @@ function notifs(){
     rel = new Set(S.jobs.filter(j=>j.teacherKey===me.key).map(j=>j.id));
     S.signups.filter(s=>rel.has(s.jobId) && (s.at||0)>S.seenAt).forEach(s=>out.push({
       at:s.at, jobId:s.jobId, text:t('nSigned', s.studentName, J[s.jobId].title),
-      html:'🙋 ' + t('nSigned', `<b class="y">${esc(s.studentName)}</b>`, esc(J[s.jobId].title))}));
+      html:'🙋 ' + t('nSigned', `<b class="y">${esc(s.studentName)}</b>`, esc(J[s.jobId].title)) + (slotsOf(J[s.jobId]) && s.slot ? ` <span class="m">(🕑 ${esc(s.slot)})</span>` : '')}));
   } else {
     const mine = S.signups.filter(s=>s.studentKey===me.key);
     rel = new Set(mine.map(s=>s.jobId));
@@ -839,24 +860,32 @@ function studentView(){
       ${myList.length ? `<h2>${t('myJobs')}</h2><div class="list">${myList.map(({s,j})=>jobCard(j,{mine:s})).join('')}</div>` : ''}`}` };
 }
 
+const slotsOf = j => (j.times && j.times.length > 1) ? j.times : null;
+const capacity = j => (+j.spots||0) * (slotsOf(j) ? slotsOf(j).length : 1);
+const takenSlot = (jobId, slot) => S.signups.filter(s => s.jobId===jobId && isActive(s) && s.slot===slot).length;
+const timeText = j => slotsOf(j) ? slotsOf(j).join(' / ') : (j.time || '');
 function jobCard(j, {mine}){
   const ppl = S.signups.filter(s=>s.jobId===j.id && isActive(s));
-  const left = Math.max(0,(+j.spots||0) - ppl.length);
+  const slots = slotsOf(j);
+  const left = Math.max(0, capacity(j) - ppl.length);
   const past = j.date < today();
   let action, cls='';
   if (mine && mine.status==='done'){ cls='done'; action = `<span class="status g">${t('doneHrs', esc(mine.hours))}</span>` }
   else if (mine && mine.status==='failed'){ cls='failed'; action = `<span class="status r">${t('notDone')}</span>` }
   else if (mine){ cls='mine'; action = past ? `<span class="status y">${t('waitConfirm')}</span>`
-                               : `<span class="status y">${t('registered')}</span><button class="btn sm out-r" data-unreg="${esc(mine.id)}">${t('cancel')}</button>` }
+                               : `<span class="status y">${t('registered')}${slots && mine.slot ? ' · 🕑 '+esc(mine.slot) : ''}</span><button class="btn sm out-r" data-unreg="${esc(mine.id)}">${t('cancel')}</button>` }
+  else if (!past && slots && left>0) action = `<div class="slots"><span class="m">${t('chooseTime')}</span><div class="slotrow">${slots.map(tm => { const l = (+j.spots||0) - takenSlot(j.id, tm);
+      return l>0 ? `<button class="slot" data-regslot="${esc(j.id)}" data-slot="${esc(tm)}"><b>${esc(tm)}</b><small>${t('slotLeft', l)}</small></button>`
+                 : `<span class="slot full"><b>${esc(tm)}</b><small>${t('slotFull')}</small></span>` }).join('')}</div></div>`;
   else action = past ? `<span class="m">${t('happened')}</span>` : left>0 ? `<span class="m">${t('spotsLeft', left)}</span><button class="btn sm y" data-reg="${esc(j.id)}">${t('register')}</button>`
                        : `<span class="m">${t('noSpots')}</span>`;
   return `
   <div class="job ${cls}">
     <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">+${esc(j.hours)} ${t('hrs')}</span></div>
-    <div class="meta"><span class="y">📅 ${esc(fmtDate(j.date))}${j.time?' · '+esc(j.time):''}</span><span>📍 ${esc(j.place)}</span><span class="m">👤 ${esc(j.teacherName)}</span></div>
+    <div class="meta"><span class="y">📅 ${esc(fmtDate(j.date))}${timeText(j)?' · '+esc(timeText(j)):''}</span><span>📍 ${esc(j.place)}</span><span class="m">👤 ${esc(j.teacherName)}</span></div>
     ${j.task?`<div class="task">${esc(j.task)}</div>`:''}
     ${filesBlock(j)}
-    ${ppl.length?`<div class="who2">👥 ${t('signedUpList', ppl.length, esc(j.spots))}: ${ppl.map(s=>`<span class="${s.studentKey===S.me.key?'y':''}">${esc(shortName(s.studentName))}</span>`).join(', ')}</div>`:''}
+    ${ppl.length?`<div class="who2">👥 ${t('signedUpList', ppl.length, capacity(j))}: ${ppl.map(s=>`<span class="${s.studentKey===S.me.key?'y':''}">${esc(shortName(s.studentName))}${slots && s.slot ? ' ('+esc(s.slot)+')' : ''}</span>`).join(', ')}</div>`:''}
     <div class="foot">${action}</div>
     ${chatBlock(j)}
   </div>`;
@@ -901,7 +930,8 @@ function teacherView(){
     ${hideModal()}` };
 }
 function teacherCard(j){
-  const ppl = S.signups.filter(s=>s.jobId===j.id).sort((a,b)=>(a.at||0)-(b.at||0));
+  const slots = slotsOf(j);
+  const ppl = S.signups.filter(s=>s.jobId===j.id).sort((a,b)=> (a.slot||'').localeCompare(b.slot||'') || (a.at||0)-(b.at||0));
   const isPast = j.date < today();
   const del = S.confirmDel===j.id;
   const failed = ppl.filter(s=>s.status==='failed');
@@ -910,14 +940,15 @@ function teacherCard(j){
   <div class="job ${j.completed?'done':isPast && !pend.length?'past':''}">
     <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">+${esc(j.hours)} ${t('hrs')}</span></div>
     ${j.completed ? `<div class="donebar"><span>✓ ${t('jobCompleted')}</span><button class="btn sm out-g" data-hide="${esc(j.id)}">${t('hideBtn')}</button></div>` : ''}
-    <div class="meta"><span class="y">📅 ${esc(fmtDate(j.date))}${j.time?' · '+esc(j.time):''}</span><span>📍 ${esc(j.place)}</span><span class="m">👥 ${t('nSignedUp', taken(j.id), esc(j.spots))}</span></div>
+    <div class="meta"><span class="y">📅 ${esc(fmtDate(j.date))}${timeText(j)?' · '+esc(timeText(j)):''}</span><span>📍 ${esc(j.place)}</span><span class="m">👥 ${t('nSignedUp', taken(j.id), capacity(j))}</span></div>
+    ${slots ? `<div class="slotsum">${slots.map(tm=>`<span>🕑 ${esc(tm)} <b>${takenSlot(j.id,tm)}/${esc(j.spots)}</b></span>`).join('')}</div>` : ''}
     ${j.task?`<div class="task">${esc(j.task)}</div>`:''}
     ${filesBlock(j)}
     <div class="ppl">
       ${ppl.length ? ppl.map(s=>`
         <div class="p ${s.status==='done'?'ok':s.status==='failed'?'bad':''}">
           <span><span class="nm">${s.status==='done'?'✓ ':s.status==='failed'?'✕ ':''}${esc(s.studentName)}</span>
-            <small class="m">${s.status==='done'?t('jobDone', esc(s.hours)):s.status==='failed'?t('jobFailed'):t('signedAgo', ago(s.at))}</small></span>
+            <small class="m">${slots && s.slot ? '🕑 '+esc(s.slot)+' · ' : ''}${s.status==='done'?t('jobDone', esc(s.hours)):s.status==='failed'?t('jobFailed'):t('signedAgo', ago(s.at))}</small></span>
           <span class="acts">${s.status==='registered'
             ? `<button class="btn sm out-g" data-ok="${esc(s.id)}">${t('btnDone')}</button><button class="btn sm out-r" data-fail="${esc(s.id)}">${t('btnFail')}</button>`
             : `<button class="linkbtn" data-undo="${esc(s.id)}">${t('change')}</button>`}
@@ -947,10 +978,17 @@ function hideModal(){
 function otherCard(j){
   return `<div class="job ${j.date<today()?'past':''}">
     <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">+${esc(j.hours)} ${t('hrs')}</span></div>
-    <div class="meta"><span class="y">${j.time?'🕑 '+esc(j.time):''}</span><span>📍 ${esc(j.place)}</span><span class="m">👤 ${esc(j.teacherName)} · 👥 ${taken(j.id)}/${esc(j.spots)}</span></div>
+    <div class="meta"><span class="y">${timeText(j)?'🕑 '+esc(timeText(j)):''}</span><span>📍 ${esc(j.place)}</span><span class="m">👤 ${esc(j.teacherName)} · 👥 ${taken(j.id)}/${capacity(j)}</span></div>
     ${filesBlock(j)}
     ${chatBlock(j)}
   </div>`;
+}
+const timeRow = tm => `<div class="trow"><input type="time" name="times" value="${esc(tm||'')}" required><button type="button" class="linkbtn" data-rmtime title="✕">✕</button></div>`;
+function syncTimes(){
+  const n = document.querySelectorAll('#timeList .trow').length, lab = $('#spotsLabel');
+  if (lab) lab.textContent = n > 1 ? t('fSpotsEach') : t('fSpots');
+  const add = $('#addTime'); if (add) add.style.display = n >= 12 ? 'none' : '';
+  document.querySelectorAll('[data-rmtime]').forEach(b => b.onclick = () => { b.closest('.trow').remove(); syncTimes() });
 }
 function newJobForm(){
   const p = S.prefill || {};
@@ -960,13 +998,14 @@ function newJobForm(){
     <h3 class="g">${p.title ? t('relistTitle') : t('newJobTitle')}</h3>
     <label class="f"><span>${t('fTitle')}</span><input name="title" required placeholder="${t('fTitlePh')}" value="${esc(p.title||'')}"></label>
     <label class="f"><span>${t('fPlace')}</span><input name="place" required placeholder="${t('fPlacePh')}" value="${esc(p.place||'')}"></label>
-    <div class="row2">
-      <label class="f"><span>${t('fDate')}</span><input name="date" type="date" required value="${dflt}" min="${today()}"></label>
-      <label class="f"><span>${t('fTime')}</span><input name="time" type="time" value="${esc(p.time||'14:00')}"></label>
+    <label class="f"><span>${t('fDate')}</span><input name="date" type="date" required value="${dflt}" min="${today()}"></label>
+    <div class="f"><span class="flabel">${t('fTimes')}</span>
+      <div id="timeList">${(p.times && p.times.length ? p.times : [p.time || '14:00']).map(timeRow).join('')}</div>
+      <button type="button" class="fadd" id="addTime">＋ ${t('addTime')}</button>
     </div>
     <div class="row2">
       <label class="f"><span>${t('fHours')}</span><input name="hours" type="number" min="0.5" step="0.5" value="${esc(p.hours||2)}" required></label>
-      <label class="f"><span>${t('fSpots')}</span><input name="spots" type="number" min="1" value="${esc(p.spots||5)}" required></label>
+      <label class="f"><span id="spotsLabel">${(p.times||[]).length > 1 ? t('fSpotsEach') : t('fSpots')}</span><input name="spots" type="number" min="1" value="${esc(p.spots||5)}" required></label>
     </div>
     <label class="f"><span>${t('fTask')}</span><textarea name="task" placeholder="${t('fTaskPh')}">${esc(p.task||'')}</textarea></label>
     <div class="f"><span class="flabel">${t('fFiles')}</span>
@@ -1012,14 +1051,28 @@ function bindView(){
   });
   on('[data-reg]', b => {
     const j = S.jobs.find(x=>x.id===b.dataset.reg); if(!j) return;
-    if (taken(j.id) >= +j.spots) return toast(t('noSpots'));
+    if (taken(j.id) >= capacity(j)) return toast(t('noSpots'));
     b.disabled = true;
     act(() => q(sb.from('signups').insert({ job_id:j.id, student_id:S.me.key })), t('tRegistered'));
+  });
+  on('[data-regslot]', b => {
+    const j = S.jobs.find(x=>x.id===b.dataset.regslot), slot = b.dataset.slot; if(!j) return;
+    if (takenSlot(j.id, slot) >= +j.spots) return toast(t('noSpots'));
+    document.querySelectorAll(`[data-regslot="${j.id}"]`).forEach(x => x.disabled = true);
+    act(() => q(sb.from('signups').insert({ job_id:j.id, student_id:S.me.key, slot })), t('tRegisteredSlot', slot));
   });
   on('[data-unreg]', b => { b.disabled=true; act(() => q(sb.from('signups').delete().eq('id', b.dataset.unreg)), t('tUnreg')) });
   on('#openNew', () => { S.newOpen = true; S.prefill = null; S.newFiles = []; renderApp(); $('#newJob input[name=title]').focus() });
   on('#cancelNew', () => { S.newOpen = false; S.prefill = null; S.newFiles = []; renderApp() });
   renderFileList();
+  syncTimes();
+  const at = $('#addTime');
+  if (at) at.onclick = () => {
+    const ins = [...document.querySelectorAll('#timeList input')], last = ins.length ? ins[ins.length-1].value : '13:00';
+    let [h, m] = (last || '13:00').split(':').map(Number); h = Math.min(23, (h||0) + 1);
+    $('#timeList').insertAdjacentHTML('beforeend', timeRow(String(h).padStart(2,'0') + ':' + String(m||0).padStart(2,'0')));
+    syncTimes(); const all = document.querySelectorAll('#timeList input'); all[all.length-1].focus();
+  };
   const fi = $('#fileInput');
   if (fi) fi.onchange = () => {
     const kept = (S.prefill && S.prefill.files) || [], err = $('#jobErr'); err.textContent = '';
@@ -1034,7 +1087,7 @@ function bindView(){
   on('[data-relist]', b => {
     const j = S.jobs.find(x=>x.id===b.dataset.relist); if (!j) return;
     const nFail = S.signups.filter(s=>s.jobId===j.id && s.status==='failed').length;
-    S.prefill = { fromJobId:j.id, failedCount:nFail, files:[...(j.files||[])], title:j.title, place:j.place, time:j.time, hours:j.hours, task:j.task, spots:nFail || j.spots, date: plusDays(1) };
+    S.prefill = { fromJobId:j.id, failedCount:nFail, files:[...(j.files||[])], title:j.title, place:j.place, time:j.time, times:[...(j.times && j.times.length ? j.times : (j.time ? [j.time] : []))], hours:j.hours, task:j.task, spots:nFail || j.spots, date: plusDays(1) };
     S.newOpen = true; S.selDay = null; S.newFiles = []; renderApp();
     const f = $('#newJob'); f.scrollIntoView({behavior:'smooth', block:'start'}); f.querySelector('[name=date]').focus();
   });
@@ -1043,7 +1096,8 @@ function bindView(){
     ev.preventDefault();
     const f = new FormData(nf), btn = nf.querySelector('button:not([type=button])');
     btn.disabled = true;
-    const job = { title:f.get('title').trim(), place:f.get('place').trim(), date:f.get('date'), time:f.get('time')||'',
+    const times = [...new Set(f.getAll('times').filter(Boolean))].sort();
+    const job = { title:f.get('title').trim(), place:f.get('place').trim(), date:f.get('date'), time:times[0]||'', times,
       hours:+f.get('hours'), spots:+f.get('spots'), task:(f.get('task')||'').trim(), teacher_id:S.me.key };
     const p = S.prefill;
     try{
