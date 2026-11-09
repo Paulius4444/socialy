@@ -335,7 +335,7 @@ const I18N = {
     relistTitle: '↻ Skelbti iš naujo', newJobTitle: 'Naujas darbas',
     fTitle: 'Ką reikia padaryti? (pavadinimas)', fTitlePh: 'pvz. Bibliotekos knygų tvarkymas',
     fPlace: 'Vieta', fPlacePh: 'pvz. 204 kabinetas, biblioteka', fDate: 'Data', fTime: 'Kada ateiti',
-    fHours: 'Kiek valandų truks darbas', hoursHint: 'Mokinys gaus tiek bendruomeninių valandų.', fSpots: 'Kiek mokinių reikia', fTask: 'Užduotis (neprivaloma)',
+    fHours: 'Kiek valandų truks darbas', fGets: 'Kiek valandų gaus mokinys', hoursHint: 'Užsipildo pagal darbo trukmę, bet galite pakeisti.', lasts: h => `truks ${h} val.`, fSpots: 'Kiek mokinių reikia', fTask: 'Užduotis (neprivaloma)',
     fTaskPh: 'Trumpai aprašykite, ką mokiniai darys ir ką atsinešti.', publish: 'Paskelbti',
     tRegistered: 'Užregistruota! Mokytojas gaus pranešimą 👋', tUnreg: 'Registracija atšaukta',
     tPublished: 'Darbas paskelbtas!', tRepublished: 'Darbas paskelbtas iš naujo!',
@@ -385,7 +385,7 @@ const I18N = {
     relistTitle: '↻ Post again', newJobTitle: 'New task',
     fTitle: 'What needs to be done? (title)', fTitlePh: 'e.g. Tidying the library',
     fPlace: 'Place', fPlacePh: 'e.g. Room 204, library', fDate: 'Date', fTime: 'When to come',
-    fHours: 'How many hours the work takes', hoursHint: 'The student will get this many community hours.', fSpots: 'Students needed', fTask: 'Task details (optional)',
+    fHours: 'How many hours the work takes', fGets: 'Hours the student will get', hoursHint: 'Filled in from the work length, but you can change it.', lasts: h => `takes ${h} h`, fSpots: 'Students needed', fTask: 'Task details (optional)',
     fTaskPh: 'Briefly describe what students will do and what to bring.', publish: 'Post',
     tRegistered: "You're signed up! The teacher will be notified 👋", tUnreg: 'Sign-up cancelled',
     tPublished: 'Task posted!', tRepublished: 'Task posted again!',
@@ -496,7 +496,7 @@ const sb = CONFIGURED ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON
 const REDIRECT = location.origin + location.pathname;
 
 const mapJob = r => ({ id:r.id, title:r.title, place:r.place, date:r.date, time:r.time||'', hours:+r.hours, spots:r.spots, task:r.task||'',
-  teacherKey:r.teacher_id, teacherName:r.teacher_name, relistedCount:r.relisted_count||0, completed:!!r.completed, teacherHidden:!!r.teacher_hidden, files:Array.isArray(r.attachments)?r.attachments:[], times:Array.isArray(r.times)?r.times:[] });
+  teacherKey:r.teacher_id, teacherName:r.teacher_name, relistedCount:r.relisted_count||0, completed:!!r.completed, teacherHidden:!!r.teacher_hidden, files:Array.isArray(r.attachments)?r.attachments:[], times:Array.isArray(r.times)?r.times:[], duration:r.duration!=null?+r.duration:null });
 const mapSignup = r => ({ slot:r.slot||'', id:r.id, jobId:r.job_id, studentKey:r.student_id, studentName:r.student_name, hours:+r.hours,
   status:r.status, at:ms(r.created_at), statusAt:ms(r.status_at) });
 const mapMsg = r => ({ id:r.id, jobId:r.job_id, authorKey:r.author_id, authorName:r.author_name, role:r.role, text:r.text, at:ms(r.created_at) });
@@ -916,6 +916,7 @@ function statsModal(){
 const slotsOf = j => (j.times && j.times.length > 1) ? j.times : null;
 const capacity = j => (+j.spots||0) * (slotsOf(j) ? slotsOf(j).length : 1);
 const takenSlot = (jobId, slot) => S.signups.filter(s => s.jobId===jobId && isActive(s) && s.slot===slot).length;
+const durText = j => (j.duration && +j.duration !== +j.hours) ? `<span class="m">⏱ ${t('lasts', esc(j.duration))}</span>` : '';
 const timeText = j => slotsOf(j) ? slotsOf(j).join(' / ') : (j.time || '');
 function jobCard(j, {mine}){
   const ppl = S.signups.filter(s=>s.jobId===j.id && isActive(s));
@@ -935,7 +936,7 @@ function jobCard(j, {mine}){
   return `
   <div class="job ${cls}">
     <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">+${esc(j.hours)} ${t('hrs')}</span></div>
-    <div class="meta"><span class="y">📅 ${esc(fmtDate(j.date))}${timeText(j)?' · '+esc(timeText(j)):''}</span><span>📍 ${esc(j.place)}</span><span class="m">👤 ${esc(j.teacherName)}</span></div>
+    <div class="meta"><span class="y">📅 ${esc(fmtDate(j.date))}${timeText(j)?' · '+esc(timeText(j)):''}</span><span>📍 ${esc(j.place)}</span>${durText(j)}<span class="m">👤 ${esc(j.teacherName)}</span></div>
     ${j.task?`<div class="task">${esc(j.task)}</div>`:''}
     ${filesBlock(j)}
     ${ppl.length?`<div class="who2">👥 ${t('signedUpList', ppl.length, capacity(j))}: ${ppl.map(s=>`<span class="${s.studentKey===S.me.key?'y':''}">${esc(shortName(s.studentName))}${slots && s.slot ? ' ('+esc(s.slot)+')' : ''}</span>`).join(', ')}</div>`:''}
@@ -993,7 +994,7 @@ function teacherCard(j){
   <div class="job ${j.completed?'done':isPast && !pend.length?'past':''}">
     <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">+${esc(j.hours)} ${t('hrs')}</span></div>
     ${j.completed ? `<div class="donebar"><span>✓ ${t('jobCompleted')}</span><button class="btn sm out-g" data-hide="${esc(j.id)}">${t('hideBtn')}</button></div>` : ''}
-    <div class="meta"><span class="y">📅 ${esc(fmtDate(j.date))}${timeText(j)?' · '+esc(timeText(j)):''}</span><span>📍 ${esc(j.place)}</span><span class="m">👥 ${t('nSignedUp', taken(j.id), capacity(j))}</span></div>
+    <div class="meta"><span class="y">📅 ${esc(fmtDate(j.date))}${timeText(j)?' · '+esc(timeText(j)):''}</span><span>📍 ${esc(j.place)}</span>${durText(j)}<span class="m">👥 ${t('nSignedUp', taken(j.id), capacity(j))}</span></div>
     ${slots ? `<div class="slotsum">${slots.map(tm=>`<span>🕑 ${esc(tm)} <b>${takenSlot(j.id,tm)}/${esc(j.spots)}</b></span>`).join('')}</div>` : ''}
     ${j.task?`<div class="task">${esc(j.task)}</div>`:''}
     ${filesBlock(j)}
@@ -1057,10 +1058,11 @@ function newJobForm(){
       <button type="button" class="fadd" id="addTime">＋ ${t('addTime')}</button>
     </div>
     <div class="row2">
-      <label class="f"><span>${t('fHours')}</span><input name="hours" type="number" min="0.5" step="0.5" value="${esc(p.hours||2)}" required></label>
-      <label class="f"><span id="spotsLabel">${(p.times||[]).length > 1 ? t('fSpotsEach') : t('fSpots')}</span><input name="spots" type="number" min="1" value="${esc(p.spots||5)}" required></label>
+      <label class="f"><span>${t('fHours')}</span><input name="duration" id="durIn" type="number" min="0.5" max="100" step="0.5" value="${esc(p.duration||p.hours||2)}" required></label>
+      <label class="f"><span>${t('fGets')}</span><input name="hours" id="getIn" type="number" min="0.5" max="100" step="0.5" value="${esc(p.hours||p.duration||2)}" required></label>
     </div>
     <small class="m fhint" style="margin:-6px 0 14px">${t('hoursHint')}</small>
+    <label class="f"><span id="spotsLabel">${(p.times||[]).length > 1 ? t('fSpotsEach') : t('fSpots')}</span><input name="spots" type="number" min="1" value="${esc(p.spots||5)}" required></label>
     <label class="f"><span>${t('fTask')}</span><textarea name="task" placeholder="${t('fTaskPh')}">${esc(p.task||'')}</textarea></label>
     <div class="f"><span class="flabel">${t('fFiles')}</span>
       <div id="fileList"></div>
@@ -1120,6 +1122,12 @@ function bindView(){
   on('#cancelNew', () => { S.newOpen = false; S.prefill = null; S.newFiles = []; renderApp() });
   renderFileList();
   syncTimes();
+  const durIn = $('#durIn'), getIn = $('#getIn');
+  if (durIn && getIn){
+    let linked = getIn.value === durIn.value;
+    durIn.oninput = () => { if (linked) getIn.value = durIn.value };
+    getIn.oninput = () => { linked = getIn.value === durIn.value };
+  }
   const at = $('#addTime');
   if (at) at.onclick = () => {
     const ins = [...document.querySelectorAll('#timeList input')], last = ins.length ? ins[ins.length-1].value : '13:00';
@@ -1141,7 +1149,7 @@ function bindView(){
   on('[data-relist]', b => {
     const j = S.jobs.find(x=>x.id===b.dataset.relist); if (!j) return;
     const nFail = S.signups.filter(s=>s.jobId===j.id && s.status==='failed').length;
-    S.prefill = { fromJobId:j.id, failedCount:nFail, files:[...(j.files||[])], title:j.title, place:j.place, time:j.time, times:[...(j.times && j.times.length ? j.times : (j.time ? [j.time] : []))], hours:j.hours, task:j.task, spots:nFail || j.spots, date: plusDays(1) };
+    S.prefill = { fromJobId:j.id, failedCount:nFail, files:[...(j.files||[])], title:j.title, place:j.place, time:j.time, times:[...(j.times && j.times.length ? j.times : (j.time ? [j.time] : []))], hours:j.hours, duration:j.duration, task:j.task, spots:nFail || j.spots, date: plusDays(1) };
     S.newOpen = true; S.selDay = null; S.newFiles = []; renderApp();
     const f = $('#newJob'); f.scrollIntoView({behavior:'smooth', block:'start'}); f.querySelector('[name=date]').focus();
   });
@@ -1152,7 +1160,7 @@ function bindView(){
     btn.disabled = true;
     const times = [...new Set(f.getAll('times').filter(Boolean))].sort();
     const job = { title:f.get('title').trim(), place:f.get('place').trim(), date:f.get('date'), time:times[0]||'', times,
-      hours:+f.get('hours'), spots:+f.get('spots'), task:(f.get('task')||'').trim(), teacher_id:S.me.key };
+      hours:+f.get('hours'), duration:+f.get('duration'), spots:+f.get('spots'), task:(f.get('task')||'').trim(), teacher_id:S.me.key };
     const p = S.prefill;
     try{
       if (S.newFiles.length) btn.textContent = t('uploading');
