@@ -199,6 +199,22 @@
   .modal .mi{width:54px;height:54px;border-radius:50%;background:rgba(61,220,132,.15);color:var(--g);font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
   .modal h3{font-size:22px;margin-bottom:10px}
   .modal p{font-size:15px;line-height:1.45;margin-bottom:6px}
+  .att{margin:-2px 0 12px;display:flex;flex-direction:column;gap:8px}
+  .thumbs{display:flex;gap:8px;flex-wrap:wrap}
+  .thumbs a{display:block;width:96px;height:96px;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--card2)}
+  .thumbs img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s}
+  .thumbs a:hover img{transform:scale(1.05)}
+  .thumb-ph{width:96px;height:96px;border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--muted)}
+  .fchip{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card2);color:var(--text);text-decoration:none;font-size:14px;max-width:100%}
+  .fchip span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fchip small{color:var(--muted);flex:none}
+  .fchip[href]:hover{border-color:var(--y)}
+  .flabel{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .fadd{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border:1px dashed var(--line);border-radius:10px;cursor:pointer;font-size:14px;color:var(--text)}
+  .fadd:hover{border-color:var(--g);color:var(--g)}
+  .fsel{display:flex;align-items:center;gap:8px;font-size:14px;padding:6px 2px}
+  .fsel span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fhint{display:block;margin-top:6px;font-size:12px}
   .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:#000;padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:9}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
   .hidden{display:none!important}
@@ -341,6 +357,8 @@ Object.assign(I18N.lt, {
   errCode: 'Neteisingas mokytojo kodas.', errCodeOrDomain: 'Neteisingas mokytojo kodas (arba naudojamas ne mokyklos el. paštas).', errDomain: 'Galima naudoti tik mokyklos el. paštą (@kmmokykla.lt).',
   errFullDb: 'Vietų nebeliko.', errPast: 'Šis darbas jau įvyko.', errRate: 'Per daug bandymų. Palaukite kelias minutes.',
   errNet: 'Nepavyko prisijungti prie serverio. Patikrinkite internetą.',
+  fFiles: 'Nuotraukos ar failai (neprivaloma)', addFile: 'Pridėti nuotrauką ar failą', fileHint: 'Iki 5 failų: nuotraukos, PDF, Word, Excel, PowerPoint (iki 10 MB).',
+  uploading: 'Keliama…', errTooMany: 'Galima prisegti ne daugiau kaip 5 failus.', errTooBig: n => `Failas per didelis (daugiau nei 10 MB) ${n}`, errType: n => `Šio tipo failo įkelti negalima ${n}`,
   myHours: 'Mano valandos', total: 'Iš viso', doneJobs: 'Atlikti darbai', jobCompleted: 'Darbas atliktas – mokiniai jo nebemato', hideBtn: 'Ištrinti iš sąrašo',
   mTitle: 'Darbas atliktas!', mText1: 'nebematomas mokiniams. Ar norite, kad darbas būtų ištrintas ir iš jūsų sąrašo?', mText2: 'Mokinių valandos liks įskaitytos.', mKeep: 'Ne, palikti', mDelete: 'Taip, ištrinti',
   tHidden: 'Darbas ištrintas iš sąrašo', delQDone: 'Ištrinti? Mokinių valandos liks.',
@@ -358,6 +376,8 @@ Object.assign(I18N.en, {
   errCode: 'Wrong teacher code.', errCodeOrDomain: 'Wrong teacher code (or not a school email).', errDomain: 'Only school emails (@kmmokykla.lt) are allowed.',
   errFullDb: 'No spots left.', errPast: 'This task has already passed.', errRate: 'Too many attempts. Please wait a few minutes.',
   errNet: "Couldn't reach the server. Check your internet connection.",
+  fFiles: 'Photos or files (optional)', addFile: 'Add a photo or file', fileHint: 'Up to 5 files: photos, PDF, Word, Excel, PowerPoint (max 10 MB).',
+  uploading: 'Uploading…', errTooMany: 'You can attach at most 5 files.', errTooBig: n => `File is too large (over 10 MB) ${n}`, errType: n => `This file type is not allowed ${n}`,
   myHours: 'My hours', total: 'Total', doneJobs: 'Completed tasks', jobCompleted: 'Task completed – students no longer see it', hideBtn: 'Remove from list',
   mTitle: 'Task completed!', mText1: 'is no longer visible to students. Do you want to remove it from your list too?', mText2: 'Student hours stay awarded.', mKeep: 'No, keep it', mDelete: 'Yes, remove',
   tHidden: 'Task removed from list', delQDone: 'Delete? Student hours will stay.',
@@ -408,7 +428,7 @@ const sb = CONFIGURED ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON
 const REDIRECT = location.origin + location.pathname;
 
 const mapJob = r => ({ id:r.id, title:r.title, place:r.place, date:r.date, time:r.time||'', hours:+r.hours, spots:r.spots, task:r.task||'',
-  teacherKey:r.teacher_id, teacherName:r.teacher_name, relistedCount:r.relisted_count||0, completed:!!r.completed, teacherHidden:!!r.teacher_hidden });
+  teacherKey:r.teacher_id, teacherName:r.teacher_name, relistedCount:r.relisted_count||0, completed:!!r.completed, teacherHidden:!!r.teacher_hidden, files:Array.isArray(r.attachments)?r.attachments:[] });
 const mapSignup = r => ({ id:r.id, jobId:r.job_id, studentKey:r.student_id, studentName:r.student_name, hours:+r.hours,
   status:r.status, at:ms(r.created_at), statusAt:ms(r.status_at) });
 const mapMsg = r => ({ id:r.id, jobId:r.job_id, authorKey:r.author_id, authorName:r.author_name, role:r.role, text:r.text, at:ms(r.created_at) });
@@ -416,7 +436,7 @@ const mapMsg = r => ({ id:r.id, jobId:r.job_id, authorKey:r.author_id, authorNam
 async function q(p){ const { data, error } = await p; if (error) throw error; return data }
 
 /* ---------- Būsena ---------- */
-const S = { me:null, jobs:[], signups:[], authMode:'login', role:'student', newOpen:false, confirmDel:null, loaded:false, calMonth:null, selDay:null, messages:[], openChat:{}, drafts:{}, seenAt:0, lastN:null, prefill:null, sessionStart:0, channel:null, authNote:'', askHide:null, asked:{} };
+const S = { me:null, jobs:[], signups:[], authMode:'login', role:'student', newOpen:false, confirmDel:null, loaded:false, calMonth:null, selDay:null, messages:[], openChat:{}, drafts:{}, seenAt:0, lastN:null, prefill:null, sessionStart:0, channel:null, authNote:'', askHide:null, asked:{}, newFiles:[], fileUrls:{} };
 
 /* ---------- AUTH ---------- */
 function renderAuth(){
@@ -558,6 +578,68 @@ async function logout(){
 }
 
 /* ---------- Duomenys ---------- */
+/* --- Failai (Supabase Storage) --- */
+const BUCKET = 'job-files', MAX_FILES = 5, MAX_MB = 10;
+const EXT_TYPES = { pdf:'application/pdf', doc:'application/msword', docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  xls:'application/vnd.ms-excel', xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', ppt:'application/vnd.ms-powerpoint',
+  pptx:'application/vnd.openxmlformats-officedocument.presentationml.presentation', txt:'text/plain', jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png', webp:'image/webp', gif:'image/gif', heic:'image/heic' };
+const fileType = f => f.type || EXT_TYPES[(f.name.split('.').pop()||'').toLowerCase()] || '';
+const isImg = tp => /^image\/(jpeg|png|webp|gif)$/.test(tp||'');
+const safeName = n => n.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9._-]+/g,'_').slice(-80) || 'failas';
+const fmtSize = b => b > 1048576 ? (b/1048576).toFixed(1)+' MB' : Math.max(1,Math.round(b/1024))+' KB';
+async function signFiles(){
+  const now = Date.now();
+  const need = [...new Set(S.jobs.flatMap(j => j.files.map(f => f.path)))].filter(p => !S.fileUrls[p] || S.fileUrls[p].exp < now + 600000);
+  if (!need.length) return;
+  try{
+    const { data } = await sb.storage.from(BUCKET).createSignedUrls(need, 43200);
+    (data||[]).forEach(d => { if (d && d.signedUrl) S.fileUrls[d.path] = { url:d.signedUrl, exp: now + 43200000 } });
+  }catch(e){}
+}
+// Didelės nuotraukos sumažinamos iki 1600 px, kad greičiau kraustytųsi
+async function shrinkImage(file){
+  const tp = fileType(file);
+  if (!/^image\/(jpeg|png|webp|heic)$/.test(tp) || file.size < 900000) return file;
+  try{
+    const bmp = await createImageBitmap(file);
+    const k = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas'); c.width = Math.round(bmp.width*k); c.height = Math.round(bmp.height*k);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.85));
+    if (!blob || blob.size >= file.size) return file;
+    return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type:'image/jpeg' });
+  }catch(e){ return file }
+}
+async function uploadFiles(files){
+  const out = [];
+  for (const raw of files){
+    const f = await shrinkImage(raw), tp = fileType(f);
+    const path = S.me.key + '/' + Date.now().toString(36) + Math.random().toString(36).slice(2,6) + '-' + safeName(f.name);
+    const { error } = await sb.storage.from(BUCKET).upload(path, f, { contentType: tp, upsert:false });
+    if (error) throw error;
+    out.push({ path, name: f.name, type: tp, size: f.size });
+  }
+  return out;
+}
+function filesBlock(j){
+  if (!j.files || !j.files.length) return '';
+  const imgs = j.files.filter(f => isImg(f.type)), docs = j.files.filter(f => !isImg(f.type));
+  const u = f => (S.fileUrls[f.path]||{}).url;
+  return `<div class="att">
+    ${imgs.length ? `<div class="thumbs">${imgs.map(f => u(f) ? `<a href="${esc(u(f))}" target="_blank" rel="noopener"><img src="${esc(u(f))}" alt="${esc(f.name)}" loading="lazy"></a>` : `<span class="thumb-ph">🖼</span>`).join('')}</div>` : ''}
+    ${docs.map(f => `<a class="fchip" ${u(f)?`href="${esc(u(f))}" target="_blank" rel="noopener"`:''}>📄 <span>${esc(f.name)}</span><small>${fmtSize(f.size||0)}</small></a>`).join('')}
+  </div>`;
+}
+function renderFileList(){
+  const el = $('#fileList'); if (!el) return;
+  const kept = (S.prefill && S.prefill.files) || [];
+  el.innerHTML = [...kept.map((f,i)=>`<div class="fsel">📎 <span>${esc(f.name)}</span><button type="button" class="linkbtn" data-rmkept="${i}">✕</button></div>`),
+                  ...S.newFiles.map((f,i)=>`<div class="fsel">📎 <span>${esc(f.name)}</span><small class="m">${fmtSize(f.size)}</small><button type="button" class="linkbtn" data-rmfile="${i}">✕</button></div>`)].join('');
+  el.querySelectorAll('[data-rmfile]').forEach(b => b.onclick = () => { S.newFiles.splice(+b.dataset.rmfile,1); renderFileList() });
+  el.querySelectorAll('[data-rmkept]').forEach(b => b.onclick = () => { S.prefill.files.splice(+b.dataset.rmkept,1); renderFileList() });
+  const add = $('#fileAdd'); if (add) add.style.display = (kept.length + S.newFiles.length) >= MAX_FILES ? 'none' : '';
+}
+
 let loading = null, again = false;
 async function loadAll(){
   if (loading){ again = true; return loading }
@@ -571,6 +653,7 @@ async function loadAll(){
       ]);
       S.jobs = jobs.map(mapJob); S.signups = signups.map(mapSignup); S.messages = msgs.map(mapMsg);
       S.loaded = true;
+      await signFiles();
       if (S.me){ checkNew(); renderApp() }
     }catch(e){ S.loaded = true; S.me && renderApp(); toast(errMsg(e)) }
   })();
@@ -752,6 +835,7 @@ function jobCard(j, {mine}){
     <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">+${esc(j.hours)} ${t('hrs')}</span></div>
     <div class="meta"><span class="y">📅 ${esc(fmtDate(j.date))}${j.time?' · '+esc(j.time):''}</span><span>📍 ${esc(j.place)}</span><span class="m">👤 ${esc(j.teacherName)}</span></div>
     ${j.task?`<div class="task">${esc(j.task)}</div>`:''}
+    ${filesBlock(j)}
     ${ppl.length?`<div class="who2">👥 ${t('signedUpList', ppl.length, esc(j.spots))}: ${ppl.map(s=>`<span class="${s.studentKey===S.me.key?'y':''}">${esc(shortName(s.studentName))}</span>`).join(', ')}</div>`:''}
     <div class="foot">${action}</div>
     ${chatBlock(j)}
@@ -808,6 +892,7 @@ function teacherCard(j){
     ${j.completed ? `<div class="donebar"><span>✓ ${t('jobCompleted')}</span><button class="btn sm out-g" data-hide="${esc(j.id)}">${t('hideBtn')}</button></div>` : ''}
     <div class="meta"><span class="y">📅 ${esc(fmtDate(j.date))}${j.time?' · '+esc(j.time):''}</span><span>📍 ${esc(j.place)}</span><span class="m">👥 ${t('nSignedUp', taken(j.id), esc(j.spots))}</span></div>
     ${j.task?`<div class="task">${esc(j.task)}</div>`:''}
+    ${filesBlock(j)}
     <div class="ppl">
       ${ppl.length ? ppl.map(s=>`
         <div class="p ${s.status==='done'?'ok':s.status==='failed'?'bad':''}">
@@ -843,6 +928,7 @@ function otherCard(j){
   return `<div class="job ${j.date<today()?'past':''}">
     <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">+${esc(j.hours)} ${t('hrs')}</span></div>
     <div class="meta"><span class="y">${j.time?'🕑 '+esc(j.time):''}</span><span>📍 ${esc(j.place)}</span><span class="m">👤 ${esc(j.teacherName)} · 👥 ${taken(j.id)}/${esc(j.spots)}</span></div>
+    ${filesBlock(j)}
     ${chatBlock(j)}
   </div>`;
 }
@@ -863,6 +949,11 @@ function newJobForm(){
       <label class="f"><span>${t('fSpots')}</span><input name="spots" type="number" min="1" value="${esc(p.spots||5)}" required></label>
     </div>
     <label class="f"><span>${t('fTask')}</span><textarea name="task" placeholder="${t('fTaskPh')}">${esc(p.task||'')}</textarea></label>
+    <div class="f"><span class="flabel">${t('fFiles')}</span>
+      <div id="fileList"></div>
+      <label class="fadd" id="fileAdd">📎 ${t('addFile')}<input type="file" id="fileInput" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" hidden></label>
+      <small class="m fhint">${t('fileHint')}</small>
+    </div>
     <div class="err" id="jobErr"></div>
     <div class="row2"><button type="button" class="btn ghost" id="cancelNew">${t('cancel')}</button><button class="btn g">${t('publish')}</button></div>
   </form>`;
@@ -906,13 +997,25 @@ function bindView(){
     act(() => q(sb.from('signups').insert({ job_id:j.id, student_id:S.me.key })), t('tRegistered'));
   });
   on('[data-unreg]', b => { b.disabled=true; act(() => q(sb.from('signups').delete().eq('id', b.dataset.unreg)), t('tUnreg')) });
-  on('#openNew', () => { S.newOpen = true; S.prefill = null; renderApp(); $('#newJob input[name=title]').focus() });
-  on('#cancelNew', () => { S.newOpen = false; S.prefill = null; renderApp() });
+  on('#openNew', () => { S.newOpen = true; S.prefill = null; S.newFiles = []; renderApp(); $('#newJob input[name=title]').focus() });
+  on('#cancelNew', () => { S.newOpen = false; S.prefill = null; S.newFiles = []; renderApp() });
+  renderFileList();
+  const fi = $('#fileInput');
+  if (fi) fi.onchange = () => {
+    const kept = (S.prefill && S.prefill.files) || [], err = $('#jobErr'); err.textContent = '';
+    for (const f of fi.files){
+      if (kept.length + S.newFiles.length >= MAX_FILES){ err.textContent = t('errTooMany'); break }
+      if (f.size > MAX_MB*1048576 && !/^image\//.test(fileType(f))){ err.textContent = t('errTooBig', f.name); continue }
+      if (!fileType(f)){ err.textContent = t('errType', f.name); continue }
+      S.newFiles.push(f);
+    }
+    fi.value = ''; renderFileList();
+  };
   on('[data-relist]', b => {
     const j = S.jobs.find(x=>x.id===b.dataset.relist); if (!j) return;
     const nFail = S.signups.filter(s=>s.jobId===j.id && s.status==='failed').length;
-    S.prefill = { fromJobId:j.id, failedCount:nFail, title:j.title, place:j.place, time:j.time, hours:j.hours, task:j.task, spots:nFail || j.spots, date: plusDays(1) };
-    S.newOpen = true; S.selDay = null; renderApp();
+    S.prefill = { fromJobId:j.id, failedCount:nFail, files:[...(j.files||[])], title:j.title, place:j.place, time:j.time, hours:j.hours, task:j.task, spots:nFail || j.spots, date: plusDays(1) };
+    S.newOpen = true; S.selDay = null; S.newFiles = []; renderApp();
     const f = $('#newJob'); f.scrollIntoView({behavior:'smooth', block:'start'}); f.querySelector('[name=date]').focus();
   });
   const nf = $('#newJob');
@@ -924,10 +1027,14 @@ function bindView(){
       hours:+f.get('hours'), spots:+f.get('spots'), task:(f.get('task')||'').trim(), teacher_id:S.me.key };
     const p = S.prefill;
     try{
+      if (S.newFiles.length) btn.textContent = t('uploading');
+      const uploaded = await uploadFiles(S.newFiles);
+      job.attachments = [...((p && p.files) || []), ...uploaded];
       await q(sb.from('jobs').insert(job));
+      S.newFiles = [];
       if (p && p.fromJobId) await q(sb.from('jobs').update({ relisted_count: p.failedCount }).eq('id', p.fromJobId));
       S.newOpen=false; S.prefill=null; document.activeElement.blur(); toast(p ? t('tRepublished') : t('tPublished')); await loadAll(); renderApp();
-    }catch(e){ $('#jobErr').textContent = errMsg(e); btn.disabled=false }
+    }catch(e){ $('#jobErr').textContent = /mime|type/i.test(String(e&&e.message)) ? t('errType','') : /size|large/i.test(String(e&&e.message)) ? t('errTooBig','') : errMsg(e); btn.disabled=false; btn.textContent = t('publish') }
   };
   const setStatus = (id, status) => q(sb.from('signups').update({ status }).eq('id', id));
   const askIfDone = jobId => { const j = S.jobs.find(x=>x.id===jobId); if (j && j.completed && !j.teacherHidden && !S.asked[jobId]){ S.asked[jobId]=1; S.askHide = jobId; renderApp() } };
@@ -942,7 +1049,10 @@ function bindView(){
   on('[data-delyes]', b => { const id=b.dataset.delyes; S.confirmDel=null;
     // jei kas nors jau gavo valandas – darbas tik paslepiamas, kad valandos neišnyktų
     const hasDone = S.signups.some(s=>s.jobId===id && s.status==='done');
-    act(() => hasDone ? q(sb.from('jobs').update({ teacher_hidden:true, completed:true }).eq('id', id)) : q(sb.from('jobs').delete().eq('id', id)), t('tDeleted')) });
+    const job = S.jobs.find(x=>x.id===id), others = new Set(S.jobs.filter(x=>x.id!==id).flatMap(x=>x.files.map(f=>f.path)));
+    const orphan = ((job && job.files) || []).map(f=>f.path).filter(p=>!others.has(p) && p.startsWith(S.me.key+'/'));
+    act(async () => { if (hasDone) await q(sb.from('jobs').update({ teacher_hidden:true, completed:true }).eq('id', id));
+      else { await q(sb.from('jobs').delete().eq('id', id)); if (orphan.length) await sb.storage.from(BUCKET).remove(orphan) } }, t('tDeleted')) });
 }
 
 /* ---------- Paleidimas ---------- */
