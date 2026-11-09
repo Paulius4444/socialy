@@ -239,6 +239,29 @@
   .slot.full{border-color:var(--line);opacity:.5;cursor:default}
   .slotsum{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--text2);margin:-4px 0 10px}
   .slotsum b{color:var(--text)}
+  .collh{width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:0;border-top:1px solid var(--line);margin-top:22px;padding:14px 2px 10px;cursor:pointer;color:var(--muted);font:inherit;font-size:14px;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+  .collh em{font-style:normal;background:var(--card2);color:var(--text);border-radius:99px;padding:1px 8px;margin-left:6px;font-size:12px;letter-spacing:0}
+  .collh i{font-style:normal;font-size:14px}
+  .collh:hover{color:var(--text)}
+  .statbtn{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid var(--line);border-radius:8px;height:28px;padding:0 10px;cursor:pointer;color:var(--text);font:inherit;font-size:13px;font-weight:600}
+  .statbtn:hover{border-color:var(--yt);color:var(--yt)}
+  .modal.statsm{max-width:460px;text-align:left;position:relative;border-color:var(--y)}
+  .modal.statsm h3{margin-bottom:16px}
+  .mclose{position:absolute;top:12px;right:14px;background:none;border:0;color:var(--muted);font-size:18px;cursor:pointer}
+  .mclose:hover{color:var(--text)}
+  .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .sbox{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .sbox .n{font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1}
+  .sbox .l{font-size:13px;color:var(--muted);margin-top:6px}
+  .donutwrap{display:flex;align-items:center;gap:22px;margin-top:20px}
+  .donut{flex:none;width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .donut>div{width:84px;height:84px;border-radius:50%;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .donut b{font-size:22px}
+  .donut small{font-size:11px;color:var(--muted)}
+  .dleg{display:flex;flex-direction:column;gap:10px;font-size:14px}
+  .dleg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;background:var(--g)}
+  .dleg i.r{background:var(--r)}
+  @media (max-width:520px){ .statbtn span{display:none} .statbtn{padding:0 8px} }
   .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:9}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
   .hidden{display:none!important}
@@ -372,6 +395,7 @@ const I18N = {
 Object.assign(I18N.lt, {
   fTimes: 'Kada ateiti (galite nurodyti kelis laikus)', addTime: 'Pridėti laiką', fSpotsEach: 'Kiek mokinių reikia kiekvienam laikui',
   chooseTime: 'Pasirinkite laiką:', slotLeft: n => `liko ${n}`, slotFull: 'užimta', errSlot: 'Pasirinkite laiką.', tRegisteredSlot: tm => `Užregistruota ${tm} laikui! 👋`,
+  myStats: 'Mano statistika', stDone: 'Atlikti darbai', stFailed: 'Neatlikti darbai', stPending: 'Laukia patvirtinimo', stDoneShort: 'atlikta', stNone: 'Dar nėra įvertintų darbų. Statistika atsiras, kai mokytojas patvirtins pirmą darbą.',
   themeLight: 'Šviesus fonas', themeDark: 'Tamsus fonas',
   forgot: 'Pamiršote slaptažodį?', forgotTitle: 'Atkurti <span class="y">slaptažodį</span>',
   forgotSub: 'Atsiųsime nuorodą naujam slaptažodžiui nustatyti.', sendLink: 'Siųsti nuorodą',
@@ -394,6 +418,7 @@ Object.assign(I18N.lt, {
 Object.assign(I18N.en, {
   fTimes: 'When to come (you can add several times)', addTime: 'Add a time', fSpotsEach: 'Students needed for each time',
   chooseTime: 'Choose a time:', slotLeft: n => `${n} left`, slotFull: 'full', errSlot: 'Please choose a time.', tRegisteredSlot: tm => `Signed up for ${tm}! 👋`,
+  myStats: 'My statistics', stDone: 'Completed tasks', stFailed: 'Not completed', stPending: 'Awaiting approval', stDoneShort: 'completed', stNone: 'No evaluated tasks yet. Statistics will appear once a teacher approves your first task.',
   themeLight: 'Light mode', themeDark: 'Dark mode',
   forgot: 'Forgot password?', forgotTitle: 'Reset <span class="y">password</span>',
   forgotSub: "We'll send you a link to set a new password.", sendLink: 'Send link',
@@ -438,6 +463,7 @@ const ymd = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+
 const today = () => ymd(new Date());
 function plusDays(n){ const d=new Date(); d.setDate(d.getDate()+n); return ymd(d) }
 function fmtDate(s){ if(!s) return ''; return t('fmtDate', new Date(s+'T00:00'), t('mon'), t('days')) }
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && S.me && (S.statsOpen || S.askHide)){ S.statsOpen = false; S.askHide = null; renderApp() } });
 let toastT; function toast(msg){ const el=$('#toast'); el.textContent=msg; el.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('on'),2600) }
 const ms = ts => ts ? Date.parse(ts) : 0;
 
@@ -477,7 +503,7 @@ const mapMsg = r => ({ id:r.id, jobId:r.job_id, authorKey:r.author_id, authorNam
 async function q(p){ const { data, error } = await p; if (error) throw error; return data }
 
 /* ---------- Būsena ---------- */
-const S = { me:null, jobs:[], signups:[], authMode:'login', role:'student', newOpen:false, confirmDel:null, loaded:false, calMonth:null, selDay:null, messages:[], openChat:{}, drafts:{}, seenAt:0, lastN:null, prefill:null, sessionStart:0, channel:null, authNote:'', askHide:null, asked:{}, newFiles:[], fileUrls:{} };
+const S = { me:null, jobs:[], signups:[], authMode:'login', role:'student', newOpen:false, confirmDel:null, loaded:false, calMonth:null, selDay:null, messages:[], openChat:{}, drafts:{}, seenAt:0, lastN:null, prefill:null, sessionStart:0, channel:null, authNote:'', askHide:null, asked:{}, newFiles:[], fileUrls:{}, statsOpen:false, hoursOpen:(()=>{ try{ return localStorage.getItem('socialy_hours_open')!=='0' }catch(e){ return true } })() };
 
 /* ---------- AUTH ---------- */
 function renderAuth(){
@@ -613,7 +639,7 @@ async function _start(user){
 }
 async function logout(){
   if (S.channel){ sb.removeChannel(S.channel); S.channel=null }
-  Object.assign(S,{me:null, jobs:[], signups:[], messages:[], loaded:false, authMode:'login', role:'student', newOpen:false, prefill:null, selDay:null, calMonth:null, openChat:{}, drafts:{}, lastN:null, authNote:''});
+  Object.assign(S,{statsOpen:false, me:null, jobs:[], signups:[], messages:[], loaded:false, authMode:'login', role:'student', newOpen:false, prefill:null, selDay:null, calMonth:null, openChat:{}, drafts:{}, lastN:null, authNote:''});
   renderAuth();
   try{ await sb.auth.signOut() }catch(e){}
 }
@@ -772,9 +798,10 @@ function renderApp(){
   $('#app').innerHTML = `
     <header class="top">
       ${LOGO(false)}
-      <div class="who"><span class="nmfull"><b>${esc(fullName(S.me))}</b></span><span class="badge ${isT?'te':'st'}">${isT?t('teacher'):t('student')}</span>${themeBtn()}${langSwitch()}<button class="linkbtn" id="logout">${t('logout')}</button></div>
+      <div class="who"><span class="nmfull"><b>${esc(fullName(S.me))}</b></span><span class="badge ${isT?'te':'st'}">${isT?t('teacher'):t('student')}</span>${isT ? '' : `<button class="statbtn" data-stats>📊<span>${t('myStats')}</span></button>`}${themeBtn()}${langSwitch()}<button class="linkbtn" id="logout">${t('logout')}</button></div>
     </header>
-    ${(() => { const v = isT ? teacherView() : studentView(); return `<div class="cols"><aside class="side">${v.side}</aside><main class="main">${S.loaded ? notifPanel() : ''}${v.main}</main></div>` })()}`;
+    ${(() => { const v = isT ? teacherView() : studentView(); return `<div class="cols"><aside class="side">${v.side}</aside><main class="main">${S.loaded ? notifPanel() : ''}${v.main}</main></div>` })()}
+    ${!isT && S.statsOpen ? statsModal() : ''}`;
   $('#logout').onclick = logout;
   bindLang();
   bindView();
@@ -860,6 +887,31 @@ function studentView(){
       ${myList.length ? `<h2>${t('myJobs')}</h2><div class="list">${myList.map(({s,j})=>jobCard(j,{mine:s})).join('')}</div>` : ''}`}` };
 }
 
+function statsModal(){
+  const mine = S.signups.filter(s => s.studentKey===S.me.key);
+  const done = mine.filter(s => s.status==='done'), failed = mine.filter(s => s.status==='failed'), pend = mine.filter(s => s.status==='registered');
+  const hours = done.reduce((a,s)=>a+(+s.hours||0),0);
+  const judged = done.length + failed.length;
+  const pDone = judged ? Math.round(done.length*100/judged) : 0, pFail = judged ? 100 - pDone : 0;
+  return `<div class="modal-bg" data-statsclose><div class="modal statsm" onclick="event.stopPropagation()">
+    <button class="mclose" data-statsclose aria-label="✕">✕</button>
+    <h3>📊 ${t('myStats')}</h3>
+    <div class="sgrid">
+      <div class="sbox"><div class="n g">${hours}</div><div class="l">${t('earned')}</div></div>
+      <div class="sbox"><div class="n">${done.length}</div><div class="l">${t('stDone')}</div></div>
+      <div class="sbox"><div class="n r">${failed.length}</div><div class="l">${t('stFailed')}</div></div>
+      <div class="sbox"><div class="n y">${pend.length}</div><div class="l">${t('stPending')}</div></div>
+    </div>
+    ${judged ? `
+    <div class="donutwrap">
+      <div class="donut" style="background:conic-gradient(var(--g) 0 ${pDone}%, var(--r) ${pDone}% 100%)"><div><b>${pDone}%</b><small>${t('stDoneShort')}</small></div></div>
+      <div class="dleg">
+        <div><i class="g"></i>${t('stDone')} <b>${pDone}%</b> <span class="m">(${done.length})</span></div>
+        <div><i class="r"></i>${t('stFailed')} <b>${pFail}%</b> <span class="m">(${failed.length})</span></div>
+      </div>
+    </div>` : `<p class="m" style="margin-top:14px">${t('stNone')}</p>`}
+  </div></div>`;
+}
 const slotsOf = j => (j.times && j.times.length > 1) ? j.times : null;
 const capacity = j => (+j.spots||0) * (slotsOf(j) ? slotsOf(j).length : 1);
 const takenSlot = (jobId, slot) => S.signups.filter(s => s.jobId===jobId && isActive(s) && s.slot===slot).length;
@@ -920,7 +972,7 @@ function teacherView(){
     </div>
     ${S.newOpen ? newJobForm() : `<button class="btn g full" id="openNew" style="margin-bottom:10px">${t('newJob')}${canAdd?' – '+esc(fmtDate(S.selDay)):''}</button>`}
     ${cal}
-    ${totRows.length ? `<h2 class="sideh">${t('studentHours')}</h2><div class="tbl">${totRows.map(r=>`<div class="tr"><span>${esc(r.name)}</span><b class="g">${r.h} ${t('hrs')}</b></div>`).join('')}</div>` : ''}`, main: `
+    ${totRows.length ? `<button class="collh" data-collhours aria-expanded="${S.hoursOpen}"><span>${t('studentHours')} <em>${totRows.length}</em></span><i>${S.hoursOpen ? '▾' : '▸'}</i></button>${S.hoursOpen ? `<div class="tbl">${totRows.map(r=>`<div class="tr"><span>${esc(r.name)}</span><b class="g">${r.h} ${t('hrs')}</b></div>`).join('')}</div>` : ''}` : ''}`, main: `
     ${S.selDay ? dayBlock(dayJobs, j => j.teacherKey===S.me.key ? teacherCard(j) : otherCard(j)) : `
       ${pastPend.length ? `<h2>${t('needConfirm')}</h2><div class="list">${pastPend.map(teacherCard).join('')}</div>`:''}
       <h2>${t('upcoming')}</h2>
@@ -1118,6 +1170,9 @@ function bindView(){
   on('[data-undo]', b => { b.disabled=true; act(()=>setStatus(b.dataset.undo,'registered')) });
   on('[data-okall]', b => { const jid=b.dataset.okall; b.disabled=true; act(() => q(sb.from('signups').update({ status:'done' }).eq('job_id', jid).eq('status','registered')), t('tAll')).then(()=>askIfDone(jid)) });
   on('[data-hideno]', () => { S.askHide = null; renderApp() });
+  on('[data-stats]', () => { S.statsOpen = true; renderApp() });
+  on('[data-statsclose]', () => { S.statsOpen = false; renderApp() });
+  on('[data-collhours]', () => { S.hoursOpen = !S.hoursOpen; try{ localStorage.setItem('socialy_hours_open', S.hoursOpen ? '1' : '0') }catch(e){} renderApp() });
   on('[data-hide]', b => { const id=b.dataset.hide; S.askHide=null; b.disabled=true; act(() => q(sb.from('jobs').update({ teacher_hidden:true }).eq('id', id)), t('tHidden')) });
   on('[data-del]', b => { S.confirmDel = b.dataset.del; renderApp() });
   on('[data-delno]', () => { S.confirmDel = null; renderApp() });
