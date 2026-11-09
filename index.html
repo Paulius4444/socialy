@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Socialy</title>
 <script>try{if(localStorage.getItem('socialy_theme')==='light')document.documentElement.classList.add('light')}catch(e){}</script>
-<meta name="description" content="Socialy – socialinių valandų valdymas mokykloje">
+<meta name="description" content="Socialy – bendruomeninių valandų valdymas mokykloje">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%230a0a0a%22/%3E%3Ccircle cx=%2224%22 cy=%2232%22 r=%2210%22 fill=%22%23FFD60A%22/%3E%3Ccircle cx=%2244%22 cy=%2232%22 r=%2210%22 fill=%22%233DDC84%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -268,7 +268,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_6xxPiGoPGke4ZHTVNEaMzg_FkRsWm0S';
 
 const I18N = {
   lt: {
-    tagline: 'Socialinės valandos – paprastai.',
+    tagline: 'Bendruomeninės valandos – paprastai.',
     f1: 'Visi darbai matomi sąraše ir kalendoriuje', f2: 'Mokytojui patvirtinus atliktą darbą, valandos įskaitomos automatiškai', f3: 'Kilus klausimų, rašykite mokytojui darbo komentaruose',
     welcome: 'Sveiki <span class="y">sugrįžę</span>', create: 'Sukurkite <span class="g">paskyrą</span>',
     loginSub: 'Prisijunkite mokyklos el. paštu.', signupSub: 'Užtruks mažiau nei minutę.',
@@ -311,14 +311,14 @@ const I18N = {
     relistTitle: '↻ Skelbti iš naujo', newJobTitle: 'Naujas darbas',
     fTitle: 'Ką reikia padaryti? (pavadinimas)', fTitlePh: 'pvz. Bibliotekos knygų tvarkymas',
     fPlace: 'Vieta', fPlacePh: 'pvz. 204 kabinetas, biblioteka', fDate: 'Data', fTime: 'Kada ateiti',
-    fHours: 'Socialinės valandos', fSpots: 'Kiek mokinių reikia', fTask: 'Užduotis (neprivaloma)',
+    fHours: 'Kiek valandų truks darbas', hoursHint: 'Mokinys gaus tiek bendruomeninių valandų.', fSpots: 'Kiek mokinių reikia', fTask: 'Užduotis (neprivaloma)',
     fTaskPh: 'Trumpai aprašykite, ką mokiniai darys ir ką atsinešti.', publish: 'Paskelbti',
     tRegistered: 'Užregistruota! Mokytojas gaus pranešimą 👋', tUnreg: 'Registracija atšaukta',
     tPublished: 'Darbas paskelbtas!', tRepublished: 'Darbas paskelbtas iš naujo!',
     tDone: 'Darbas atliktas – valandos įskaitytos ✓', tFail: 'Pažymėta: darbas neatliktas', tAll: 'Visiems įskaityta ✓', tDeleted: 'Darbas ištrintas'
   },
   en: {
-    tagline: 'Social hours, made simple.',
+    tagline: 'Community hours, made simple.',
     f1: 'See all tasks in a list and on a calendar', f2: 'Hours are added automatically once the teacher confirms the task is done', f3: 'Questions? Write to the teacher in the task comments',
     welcome: 'Welcome <span class="y">back</span>', create: 'Create an <span class="g">account</span>',
     loginSub: 'Sign in with your school email.', signupSub: 'Takes less than a minute.',
@@ -361,7 +361,7 @@ const I18N = {
     relistTitle: '↻ Post again', newJobTitle: 'New task',
     fTitle: 'What needs to be done? (title)', fTitlePh: 'e.g. Tidying the library',
     fPlace: 'Place', fPlacePh: 'e.g. Room 204, library', fDate: 'Date', fTime: 'When to come',
-    fHours: 'Social hours', fSpots: 'Students needed', fTask: 'Task details (optional)',
+    fHours: 'How many hours the work takes', hoursHint: 'The student will get this many community hours.', fSpots: 'Students needed', fTask: 'Task details (optional)',
     fTaskPh: 'Briefly describe what students will do and what to bring.', publish: 'Post',
     tRegistered: "You're signed up! The teacher will be notified 👋", tUnreg: 'Sign-up cancelled',
     tPublished: 'Task posted!', tRepublished: 'Task posted again!',
@@ -1007,6 +1007,7 @@ function newJobForm(){
       <label class="f"><span>${t('fHours')}</span><input name="hours" type="number" min="0.5" step="0.5" value="${esc(p.hours||2)}" required></label>
       <label class="f"><span id="spotsLabel">${(p.times||[]).length > 1 ? t('fSpotsEach') : t('fSpots')}</span><input name="spots" type="number" min="1" value="${esc(p.spots||5)}" required></label>
     </div>
+    <small class="m fhint" style="margin:-6px 0 14px">${t('hoursHint')}</small>
     <label class="f"><span>${t('fTask')}</span><textarea name="task" placeholder="${t('fTaskPh')}">${esc(p.task||'')}</textarea></label>
     <div class="f"><span class="flabel">${t('fFiles')}</span>
       <div id="fileList"></div>
