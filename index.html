@@ -268,6 +268,16 @@
   .cal .dcount.r{background:var(--r);color:#fff}
   .cal .dcount.o{background:transparent;border:1.5px solid var(--y);color:var(--yt);line-height:11px}
   .cal .d.sel .dcount{background:#000;color:var(--y);border-color:#000}
+  .tabs{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:22px}
+  .tabs button{flex:1;background:none;border:0;padding:11px 8px;border-radius:9px;color:var(--muted);font:inherit;font-weight:600;font-size:15px;cursor:pointer}
+  .tabs button.on{background:var(--g);color:#000}
+  .tabs button:not(.on):hover{color:var(--text)}
+  .tabs em{font-style:normal;background:var(--y);color:#000;border-radius:99px;padding:1px 7px;font-size:11px;margin-left:4px}
+  .author{font-size:13px;color:var(--muted);margin:2px 0 8px}
+  .offers{border-top:1px solid var(--line);margin-top:10px;padding-top:10px;font-size:14px;color:var(--text2)}
+  .offers b{color:var(--gt)}
+  .job.own{border-color:rgba(61,220,132,.45)}
+  .mine-tag{flex:none;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gt);background:rgba(61,220,132,.12);padding:3px 8px;border-radius:99px}
   .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:9}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
   .hidden{display:none!important}
@@ -401,6 +411,13 @@ const I18N = {
 Object.assign(I18N.lt, {
   fTimes: 'Kada ateiti (galite nurodyti kelis laikus)', addTime: 'Pridėti laiką', fSpotsEach: 'Kiek mokinių reikia kiekvienam laikui',
   chooseTime: 'Pasirinkite laiką:', slotLeft: n => `liko ${n}`, slotFull: 'užimta', errSlot: 'Pasirinkite laiką.', tRegisteredSlot: tm => `Užregistruota ${tm} laikui! 👋`,
+  tabJobs: 'Darbai mokiniams', tabHelp: 'Mokytojams', askHelp: 'Prašyti pagalbos', helpNote: 'Šią skiltį mato <b>tik mokytojai</b>. Paprašykite kolegų pagalbos – jie atsakys vienu paspaudimu.',
+  hTitle: 'Ko reikia?', hTitlePh: 'pvz. Reikia budinčio renginyje', hBody: 'Aprašymas (neprivaloma)', hBodyPh: 'Trumpai aprašykite, kokios pagalbos reikia.',
+  hDate: 'Data (neprivaloma)', hTime: 'Laikas (neprivaloma)', hPlace: 'Vieta (neprivaloma)',
+  hOffered: 'Siūlosi padėti', hNoOffers: 'Dar niekas nepasisiūlė', hDelQ: 'Ištrinti prašymą?', hResolve: 'Išspręsta', hReopen: 'Grąžinti', hYouHelp: 'Jūs padedate',
+  hHelping: 'Padeda', hCanHelp: 'Galiu padėti', hMine: 'Jūsų prašymas', hResolved: 'Išspręsta', hOpenList: 'Prašymai pagalbai', hResolvedList: 'Išspręsti',
+  hEmpty: 'Šiuo metu niekam nereikia pagalbos.', nHelpAsk: (n, x) => `${n} prašo pagalbos: „${x}“`, nHelpOffer: (n, x) => `${n} gali padėti: „${x}“`,
+  tHelpPosted: 'Prašymas paskelbtas!', tOffered: 'Ačiū! Autorius gaus pranešimą 🙌', tUnoffered: 'Pagalba atšaukta', tResolved: 'Pažymėta kaip išspręsta ✓', tHelpDeleted: 'Prašymas ištrintas', errOwnPost: 'Negalite pasisiūlyti savo paties prašymui.',
   myStats: 'Mano statistika', stDone: 'Atlikti darbai', stFailed: 'Neatlikti darbai', stPending: 'Laukia patvirtinimo', stDoneShort: 'atlikta', stNone: 'Dar nėra įvertintų darbų. Statistika atsiras, kai mokytojas patvirtins pirmą darbą.',
   themeLight: 'Šviesus fonas', themeDark: 'Tamsus fonas',
   forgot: 'Pamiršote slaptažodį?', forgotTitle: 'Atkurti <span class="y">slaptažodį</span>',
@@ -424,6 +441,13 @@ Object.assign(I18N.lt, {
 Object.assign(I18N.en, {
   fTimes: 'When to come (you can add several times)', addTime: 'Add a time', fSpotsEach: 'Students needed for each time',
   chooseTime: 'Choose a time:', slotLeft: n => `${n} left`, slotFull: 'full', errSlot: 'Please choose a time.', tRegisteredSlot: tm => `Signed up for ${tm}! 👋`,
+  tabJobs: 'Student tasks', tabHelp: 'For teachers', askHelp: 'Ask for help', helpNote: 'Only <b>teachers</b> can see this section. Ask colleagues for help – they can reply with one click.',
+  hTitle: 'What do you need?', hTitlePh: 'e.g. Need a supervisor at an event', hBody: 'Description (optional)', hBodyPh: 'Briefly describe what help you need.',
+  hDate: 'Date (optional)', hTime: 'Time (optional)', hPlace: 'Place (optional)',
+  hOffered: 'Offered to help', hNoOffers: 'No offers yet', hDelQ: 'Delete this request?', hResolve: 'Resolved', hReopen: 'Reopen', hYouHelp: "You're helping",
+  hHelping: 'Helping', hCanHelp: 'I can help', hMine: 'Your request', hResolved: 'Resolved', hOpenList: 'Help requests', hResolvedList: 'Resolved',
+  hEmpty: 'Nobody needs help right now.', nHelpAsk: (n, x) => `${n} asks for help: “${x}”`, nHelpOffer: (n, x) => `${n} can help: “${x}”`,
+  tHelpPosted: 'Request posted!', tOffered: 'Thanks! The author will be notified 🙌', tUnoffered: 'Offer withdrawn', tResolved: 'Marked as resolved ✓', tHelpDeleted: 'Request deleted', errOwnPost: "You can't offer help on your own request.",
   myStats: 'My statistics', stDone: 'Completed tasks', stFailed: 'Not completed', stPending: 'Awaiting approval', stDoneShort: 'completed', stNone: 'No evaluated tasks yet. Statistics will appear once a teacher approves your first task.',
   themeLight: 'Light mode', themeDark: 'Dark mode',
   forgot: 'Forgot password?', forgotTitle: 'Reset <span class="y">password</span>',
@@ -479,6 +503,7 @@ function errMsg(e){
   if (/SOCIALY_BAD_DOMAIN/.test(m)) return t('errDomain');
   if (/SOCIALY_FULL/.test(m)) return t('errFullDb');
   if (/SOCIALY_BAD_SLOT/.test(m)) return t('errSlot');
+  if (/SOCIALY_OWN_POST/.test(m)) return t('errOwnPost');
   if (/SOCIALY_PAST/.test(m)) return t('errPast');
   if (/Invalid login credentials/i.test(m)) return t('errLogin');
   if (/Email not confirmed/i.test(m)) return t('notConfirmed');
@@ -506,10 +531,12 @@ const mapSignup = r => ({ slot:r.slot||'', id:r.id, jobId:r.job_id, studentKey:r
   status:r.status, at:ms(r.created_at), statusAt:ms(r.status_at) });
 const mapMsg = r => ({ id:r.id, jobId:r.job_id, authorKey:r.author_id, authorName:r.author_name, role:r.role, text:r.text, at:ms(r.created_at) });
 
+const mapPost = r => ({ id:r.id, authorKey:r.author_id, authorName:r.author_name, title:r.title, body:r.body||'', date:r.date||'', time:r.time||'', place:r.place||'', resolved:!!r.resolved, at:ms(r.created_at) });
+const mapOffer = r => ({ id:r.id, postId:r.post_id, teacherKey:r.teacher_id, teacherName:r.teacher_name, at:ms(r.created_at) });
 async function q(p){ const { data, error } = await p; if (error) throw error; return data }
 
 /* ---------- Būsena ---------- */
-const S = { me:null, jobs:[], signups:[], authMode:'login', role:'student', newOpen:false, confirmDel:null, loaded:false, calMonth:null, selDay:null, messages:[], openChat:{}, drafts:{}, seenAt:0, lastN:null, prefill:null, sessionStart:0, channel:null, authNote:'', askHide:null, asked:{}, newFiles:[], fileUrls:{}, statsOpen:false, hoursOpen:(()=>{ try{ return localStorage.getItem('socialy_hours_open')!=='0' }catch(e){ return true } })() };
+const S = { me:null, jobs:[], signups:[], authMode:'login', role:'student', newOpen:false, confirmDel:null, loaded:false, calMonth:null, selDay:null, messages:[], openChat:{}, drafts:{}, seenAt:0, lastN:null, prefill:null, sessionStart:0, channel:null, authNote:'', askHide:null, asked:{}, newFiles:[], fileUrls:{}, statsOpen:false, ttab:'jobs', helpOpen:false, resolvedOpen:false, confirmDelPost:null, tposts:[], toffers:[], hoursOpen:(()=>{ try{ return localStorage.getItem('socialy_hours_open')!=='0' }catch(e){ return true } })() };
 
 /* ---------- AUTH ---------- */
 function renderAuth(){
@@ -645,7 +672,7 @@ async function _start(user){
 }
 async function logout(){
   if (S.channel){ sb.removeChannel(S.channel); S.channel=null }
-  Object.assign(S,{statsOpen:false, me:null, jobs:[], signups:[], messages:[], loaded:false, authMode:'login', role:'student', newOpen:false, prefill:null, selDay:null, calMonth:null, openChat:{}, drafts:{}, lastN:null, authNote:''});
+  Object.assign(S,{statsOpen:false, ttab:'jobs', helpOpen:false, tposts:[], toffers:[], me:null, jobs:[], signups:[], messages:[], loaded:false, authMode:'login', role:'student', newOpen:false, prefill:null, selDay:null, calMonth:null, openChat:{}, drafts:{}, lastN:null, authNote:''});
   renderAuth();
   try{ await sb.auth.signOut() }catch(e){}
 }
@@ -725,6 +752,15 @@ async function loadAll(){
         q(sb.from('messages').select('*').order('created_at').limit(5000))
       ]);
       S.jobs = jobs.map(mapJob); S.signups = signups.map(mapSignup); S.messages = msgs.map(mapMsg);
+      if (S.me && S.me.role === 'teacher'){
+        try{
+          const [tp, to] = await Promise.all([
+            q(sb.from('teacher_posts').select('*').order('created_at', { ascending:false }).limit(500)),
+            q(sb.from('teacher_offers').select('*'))
+          ]);
+          S.tposts = tp.map(mapPost); S.toffers = to.map(mapOffer);
+        }catch(e){ S.tposts = []; S.toffers = [] }
+      }
       S.loaded = true;
       await signFiles();
       if (S.me){ checkNew(); renderApp() }
@@ -741,6 +777,8 @@ function subscribe(){
     .on('postgres_changes', { event:'*', schema:'public', table:'jobs' }, kick)
     .on('postgres_changes', { event:'*', schema:'public', table:'signups' }, kick)
     .on('postgres_changes', { event:'*', schema:'public', table:'messages' }, kick)
+    .on('postgres_changes', { event:'*', schema:'public', table:'teacher_posts' }, kick)
+    .on('postgres_changes', { event:'*', schema:'public', table:'teacher_offers' }, kick)
     .subscribe();
 }
 // Atsarginis atnaujinimas, jei realtime neveikia
@@ -772,6 +810,15 @@ function notifs(){
       html: s.status==='done' ? `✅ ${esc(J[s.jobId].title)} – <b class="g">${t('nDone')}, +${esc(s.hours)} ${t('hrs')}</b>`
                               : `❌ ${esc(J[s.jobId].title)} – <b class="r">${t('nFailed')}</b>`}));
   }
+  if (isT){
+    S.tposts.filter(p => p.authorKey!==me.key && !p.resolved && p.at > S.seenAt).forEach(p => out.push({
+      at:p.at, help:p.id, text:t('nHelpAsk', p.authorName, p.title),
+      html:'🆘 ' + t('nHelpAsk', `<b class="y">${esc(p.authorName)}</b>`, esc(p.title)) }));
+    const myPosts = Object.fromEntries(S.tposts.filter(p => p.authorKey===me.key).map(p => [p.id, p]));
+    S.toffers.filter(o => myPosts[o.postId] && o.at > S.seenAt).forEach(o => out.push({
+      at:o.at, help:o.postId, text:t('nHelpOffer', o.teacherName, myPosts[o.postId].title),
+      html:'🙋 ' + t('nHelpOffer', `<b class="g">${esc(o.teacherName)}</b>`, esc(myPosts[o.postId].title)) }));
+  }
   S.messages.filter(m=>rel.has(m.jobId) && m.authorKey!==me.key && (m.at||0)>S.seenAt && J[m.jobId]).forEach(m=>out.push({
     at:m.at, jobId:m.jobId, chat:true, text:`${m.authorName}: ${m.text}`,
     html:`💬 <b class="${m.role==='teacher'?'g':'y'}">${esc(m.authorName)}</b> <span class="m">(${esc(J[m.jobId].title)})</span>: ${esc(m.text.length>80?m.text.slice(0,80)+'…':m.text)}`}));
@@ -786,7 +833,7 @@ function notifPanel(){
   const n = notifs(); if (!n.length) return '';
   return `<div class="notif">
     <div class="nh"><b>🔔 ${t('news')} <span class="cnt">${n.length}</span></b><button class="linkbtn" data-seen>${t('markRead')}</button></div>
-    ${n.slice(0,6).map(x=>`<button class="ni" data-goto="${esc(x.jobId)}" data-gochat="${x.chat?1:''}"><span>${x.html}</span><span class="m t">${ago(x.at)}</span></button>`).join('')}
+    ${n.slice(0,6).map(x=>`<button class="ni" ${x.help ? `data-gohelp="${esc(x.help)}"` : `data-goto="${esc(x.jobId)}" data-gochat="${x.chat?1:''}"`}><span>${x.html}</span><span class="m t">${ago(x.at)}</span></button>`).join('')}
     ${n.length>6?`<div class="m" style="font-size:13px;padding:6px 4px 0">${t('andMore', n.length-6)}</div>`:''}
   </div>`;
 }
@@ -797,6 +844,7 @@ function renderApp(){
   if (!S.me) return renderAuth();
   const ae = document.activeElement;
   if (S.newOpen && ae && ae.closest && ae.closest('#newJob')) return;
+  if (S.helpOpen && ae && ae.closest && ae.closest('#newHelp')) return;
   const keep = ae && ae.dataset ? ae.dataset.keep : null;
   const sel = keep ? [ae.selectionStart, ae.selectionEnd] : null;
   const scrolls = {}; document.querySelectorAll('[data-msgs]').forEach(el => scrolls[el.dataset.msgs] = el.scrollHeight - el.scrollTop - el.clientHeight < 40);
@@ -806,7 +854,7 @@ function renderApp(){
       ${LOGO(false)}
       <div class="who"><span class="nmfull"><b>${esc(fullName(S.me))}</b></span><span class="badge ${isT?'te':'st'}">${isT?t('teacher'):t('student')}</span>${isT ? '' : `<button class="statbtn" data-stats>📊<span>${t('myStats')}</span></button>`}${themeBtn()}${langSwitch()}<button class="linkbtn" id="logout">${t('logout')}</button></div>
     </header>
-    ${(() => { const v = isT ? teacherView() : studentView(); return `<div class="cols"><aside class="side">${v.side}</aside><main class="main">${S.loaded ? notifPanel() : ''}${v.main}</main></div>` })()}
+    ${(() => { const v = isT ? teacherView() : studentView(); return `${v.tabs || ''}<div class="cols"><aside class="side">${v.side}</aside><main class="main">${S.loaded ? notifPanel() : ''}${v.main}</main></div>` })()}
     ${!isT && S.statsOpen ? statsModal() : ''}`;
   $('#logout').onclick = logout;
   bindLang();
@@ -971,6 +1019,18 @@ function teacherView(){
   const dayJobs = S.jobs.filter(j=>j.date===S.selDay && (j.teacherKey===S.me.key ? !j.teacherHidden : !j.completed)).sort(byDate);
   const canAdd = S.selDay && S.selDay>=today();
   const pastPend = past.filter(hasPend), pastRest = past.filter(j=>!hasPend(j));
+  const helpNew = S.tposts.filter(p => p.authorKey!==S.me.key && !p.resolved && p.at > S.seenAt).length
+                + S.toffers.filter(o => { const p = S.tposts.find(x=>x.id===o.postId); return p && p.authorKey===S.me.key && o.at > S.seenAt }).length;
+  const tabs = `<div class="tabs"><button data-ttab="jobs" class="${S.ttab==='jobs'?'on':''}">📋 ${t('tabJobs')}</button><button data-ttab="help" class="${S.ttab==='help'?'on':''}">🤝 ${t('tabHelp')}${helpNew ? ` <em>${helpNew}</em>` : ''}</button></div>`;
+  const statsBlock = `
+    <div class="stats">
+      <div class="stat"><div class="n y">${totalSigned}</div><div class="l">${t('signedStudents')}</div></div>
+      <div class="stat"><div class="n">${toConfirm}</div><div class="l">${t('pending')}</div></div>
+      <div class="stat"><div class="n g">${mySign.filter(s=>s.status==='done').reduce((a,s)=>a+(+s.hours||0),0)}</div><div class="l">${t('givenHrs')}</div></div>
+    </div>`;
+  if (S.ttab === 'help') return { side: `${statsBlock}
+    ${S.helpOpen ? helpForm() : `<button class="btn g full" id="openHelp" style="margin-bottom:10px">🤝 ${t('askHelp')}</button>`}
+    <div class="note-box ok" style="font-size:13px">${t('helpNote')}</div>`, main: helpMain(), tabs };
   return { side: `
     <div class="stats">
       <div class="stat"><div class="n y">${totalSigned}</div><div class="l">${t('signedStudents')}</div></div>
@@ -986,7 +1046,55 @@ function teacherView(){
       <div class="list">${!S.loaded ? `<div class="empty">${t('loading')}</div>` : up.length ? up.map(teacherCard).join('') : `<div class="empty">${t('noUpcoming')}</div>`}</div>
       ${pastRest.length ? `<h2>${t('pastJobs')}</h2><div class="list">${pastRest.map(teacherCard).join('')}</div>` : ''}
       ${doneJobs.length ? `<h2>${t('doneJobs')}</h2><div class="list">${doneJobs.map(teacherCard).join('')}</div>` : ''}`}
-    ${hideModal()}` };
+    ${hideModal()}`, tabs };
+}
+function helpForm(){
+  return `<form class="newjob" id="newHelp">
+    <h3 class="g">🤝 ${t('askHelp')}</h3>
+    <label class="f"><span>${t('hTitle')}</span><input name="title" required maxlength="200" placeholder="${t('hTitlePh')}"></label>
+    <label class="f"><span>${t('hBody')}</span><textarea name="body" maxlength="3000" placeholder="${t('hBodyPh')}"></textarea></label>
+    <div class="row2">
+      <label class="f"><span>${t('hDate')}</span><input name="date" type="date" min="${today()}"></label>
+      <label class="f"><span>${t('hTime')}</span><input name="time" type="time"></label>
+    </div>
+    <label class="f"><span>${t('hPlace')}</span><input name="place" maxlength="200" placeholder="${t('fPlacePh')}"></label>
+    <div class="err" id="helpErr"></div>
+    <div class="row2"><button type="button" class="btn ghost" id="cancelHelp">${t('cancel')}</button><button class="btn g">${t('publish')}</button></div>
+  </form>`;
+}
+function helpCard(p){
+  const mine = p.authorKey === S.me.key;
+  const offers = S.toffers.filter(o => o.postId === p.id).sort((a,b)=>a.at-b.at);
+  const myOffer = offers.find(o => o.teacherKey === S.me.key);
+  const names = offers.map(o => esc(o.teacherName)).join(', ');
+  const meta = (p.date || p.time || p.place) ? `<div class="meta">${p.date ? `<span class="y">📅 ${esc(fmtDate(p.date))}${p.time ? ' · '+esc(p.time) : ''}</span>` : p.time ? `<span class="y">🕑 ${esc(p.time)}</span>` : ''}${p.place ? `<span>📍 ${esc(p.place)}</span>` : ''}</div>` : '';
+  const del = S.confirmDelPost === p.id;
+  let foot;
+  if (mine) foot = `
+    <div class="offers">🙋 ${offers.length ? `${t('hOffered')}: <b>${names}</b>` : `<span class="m">${t('hNoOffers')}</span>`}</div>
+    <div class="foot" style="margin-top:10px;justify-content:flex-end">
+      ${del ? `<span class="m">${t('hDelQ')}</span><button class="btn sm ghost" data-delpostno>${t('no')}</button><button class="btn sm" style="background:var(--r);color:#000" data-delpost="${esc(p.id)}">${t('yesDel')}</button>`
+            : `<button class="btn sm out-g" data-resolve="${esc(p.id)}">${p.resolved ? '↺ '+t('hReopen') : '✓ '+t('hResolve')}</button><button class="linkbtn" data-delpostask="${esc(p.id)}">${t('del')}</button>`}
+    </div>`;
+  else foot = `<div class="foot" style="margin-top:4px">
+      <span class="${myOffer ? 'status g' : 'm'}">${myOffer ? '✓ '+t('hYouHelp') : offers.length ? '🙋 '+t('hHelping')+': '+names : ''}</span>
+      ${p.resolved ? '' : myOffer ? `<button class="btn sm out-r" data-unoffer="${esc(myOffer.id)}">${t('cancel')}</button>` : `<button class="btn sm g" data-offer="${esc(p.id)}">🙋 ${t('hCanHelp')}</button>`}
+    </div>`;
+  return `<div class="job ${mine ? 'own' : ''} ${p.resolved ? 'past' : ''}" id="post-${esc(p.id)}">
+    <div class="head"><h3>${esc(p.title)}</h3>${mine ? `<span class="mine-tag">${t('hMine')}</span>` : p.resolved ? `<span class="mine-tag">✓ ${t('hResolved')}</span>` : ''}</div>
+    <div class="author">👤 ${mine ? t('you') : esc(p.authorName)} · ${ago(p.at)}</div>
+    ${meta}
+    ${p.body ? `<div class="task">${esc(p.body)}</div>` : ''}
+    ${foot}
+  </div>`;
+}
+function helpMain(){
+  if (!S.loaded) return `<div class="empty">${t('loading')}</div>`;
+  const open = S.tposts.filter(p => !p.resolved), done = S.tposts.filter(p => p.resolved);
+  return `<h2>${t('hOpenList')}</h2>
+    <div class="list">${open.length ? open.map(helpCard).join('') : `<div class="empty">${t('hEmpty')}</div>`}</div>
+    ${done.length ? `<button class="collh" data-collresolved><span>${t('hResolvedList')} <em>${done.length}</em></span><i>${S.resolvedOpen ? '▾' : '▸'}</i></button>
+      ${S.resolvedOpen ? `<div class="list">${done.map(helpCard).join('')}</div>` : ''}` : ''}`;
 }
 function teacherCard(j){
   const slots = slotsOf(j);
@@ -1185,6 +1293,27 @@ function bindView(){
   on('[data-okall]', b => { const jid=b.dataset.okall; b.disabled=true; act(() => q(sb.from('signups').update({ status:'done' }).eq('job_id', jid).eq('status','registered')), t('tAll')).then(()=>askIfDone(jid)) });
   on('[data-hideno]', () => { S.askHide = null; renderApp() });
   on('[data-stats]', () => { S.statsOpen = true; renderApp() });
+  on('[data-ttab]', b => { S.ttab = b.dataset.ttab; S.selDay = null; renderApp(); window.scrollTo({ top:0 }) });
+  on('[data-gohelp]', b => { S.ttab = 'help'; const p = S.tposts.find(x=>x.id===b.dataset.gohelp); if (p && p.resolved) S.resolvedOpen = true; renderApp();
+    const el = document.getElementById('post-' + b.dataset.gohelp); el && el.scrollIntoView({ behavior:'smooth', block:'center' }) });
+  on('#openHelp', () => { S.helpOpen = true; renderApp(); const i = $('#newHelp input[name=title]'); i && i.focus() });
+  on('#cancelHelp', () => { S.helpOpen = false; renderApp() });
+  const hf = $('#newHelp');
+  if (hf) hf.onsubmit = async ev => {
+    ev.preventDefault();
+    const f = new FormData(hf), btn = hf.querySelector('button:not([type=button])'); btn.disabled = true;
+    const post = { title:(f.get('title')||'').trim(), body:(f.get('body')||'').trim(), date:f.get('date') || null, time:f.get('time') || '', place:(f.get('place')||'').trim(), author_id:S.me.key };
+    try{ await q(sb.from('teacher_posts').insert(post)); S.helpOpen = false; document.activeElement.blur(); toast(t('tHelpPosted')); await loadAll(); renderApp() }
+    catch(e){ $('#helpErr').textContent = errMsg(e); btn.disabled = false }
+  };
+  on('[data-offer]', b => { b.disabled = true; act(() => q(sb.from('teacher_offers').insert({ post_id:b.dataset.offer, teacher_id:S.me.key })), t('tOffered')) });
+  on('[data-unoffer]', b => { b.disabled = true; act(() => q(sb.from('teacher_offers').delete().eq('id', b.dataset.unoffer)), t('tUnoffered')) });
+  on('[data-resolve]', b => { const p = S.tposts.find(x=>x.id===b.dataset.resolve); if (!p) return; b.disabled = true;
+    act(() => q(sb.from('teacher_posts').update({ resolved: !p.resolved }).eq('id', p.id)), p.resolved ? null : t('tResolved')) });
+  on('[data-delpostask]', b => { S.confirmDelPost = b.dataset.delpostask; renderApp() });
+  on('[data-delpostno]', () => { S.confirmDelPost = null; renderApp() });
+  on('[data-delpost]', b => { const id = b.dataset.delpost; S.confirmDelPost = null; act(() => q(sb.from('teacher_posts').delete().eq('id', id)), t('tHelpDeleted')) });
+  on('[data-collresolved]', () => { S.resolvedOpen = !S.resolvedOpen; renderApp() });
   on('[data-statsclose]', () => { S.statsOpen = false; renderApp() });
   on('[data-collhours]', () => { S.hoursOpen = !S.hoursOpen; try{ localStorage.setItem('socialy_hours_open', S.hoursOpen ? '1' : '0') }catch(e){} renderApp() });
   on('[data-hide]', b => { const id=b.dataset.hide; S.askHide=null; b.disabled=true; act(() => q(sb.from('jobs').update({ teacher_hidden:true }).eq('id', id)), t('tHidden')) });
