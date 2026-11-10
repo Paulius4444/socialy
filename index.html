@@ -278,6 +278,10 @@
   .offers b{color:var(--gt)}
   .job.own{border-color:rgba(61,220,132,.45)}
   .mine-tag{flex:none;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gt);background:rgba(61,220,132,.12);padding:3px 8px;border-radius:99px}
+  .slot.on{background:var(--g);border-color:var(--g);color:#000}
+  .slot.on small{color:#000}
+  .slotoffers{display:flex;flex-direction:column;gap:6px}
+  .slotoffers .tm{color:var(--text)}
   .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:9}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
   .hidden{display:none!important}
@@ -413,7 +417,7 @@ Object.assign(I18N.lt, {
   chooseTime: 'Pasirinkite laiką:', slotLeft: n => `liko ${n}`, slotFull: 'užimta', errSlot: 'Pasirinkite laiką.', tRegisteredSlot: tm => `Užregistruota ${tm} laikui! 👋`,
   tabJobs: 'Darbai mokiniams', tabHelp: 'Mokytojams', askHelp: 'Prašyti pagalbos', helpNote: 'Šią skiltį mato <b>tik mokytojai</b>. Paprašykite kolegų pagalbos – jie atsakys vienu paspaudimu.',
   hTitle: 'Ko reikia?', hTitlePh: 'pvz. Reikia budinčio renginyje', hBody: 'Aprašymas (neprivaloma)', hBodyPh: 'Trumpai aprašykite, kokios pagalbos reikia.',
-  hDate: 'Data (neprivaloma)', hTime: 'Laikas (neprivaloma)', hPlace: 'Vieta (neprivaloma)',
+  hDate: 'Data (neprivaloma)', hTime: 'Laikas (neprivaloma)', hTimes: 'Laikas (neprivaloma, galite nurodyti kelis)', hPickTimes: 'Pažymėkite laikus, kuriais galite padėti:', hNobody: 'niekas', hPlace: 'Vieta (neprivaloma)',
   hOffered: 'Siūlosi padėti', hNoOffers: 'Dar niekas nepasisiūlė', hDelQ: 'Ištrinti prašymą?', hResolve: 'Išspręsta', hReopen: 'Grąžinti', hYouHelp: 'Jūs padedate',
   hHelping: 'Padeda', hCanHelp: 'Galiu padėti', hMine: 'Jūsų prašymas', hResolved: 'Išspręsta', hOpenList: 'Prašymai pagalbai', hResolvedList: 'Išspręsti',
   hEmpty: 'Šiuo metu niekam nereikia pagalbos.', nHelpAsk: (n, x) => `${n} prašo pagalbos: „${x}“`, nHelpOffer: (n, x) => `${n} gali padėti: „${x}“`,
@@ -443,7 +447,7 @@ Object.assign(I18N.en, {
   chooseTime: 'Choose a time:', slotLeft: n => `${n} left`, slotFull: 'full', errSlot: 'Please choose a time.', tRegisteredSlot: tm => `Signed up for ${tm}! 👋`,
   tabJobs: 'Student tasks', tabHelp: 'For teachers', askHelp: 'Ask for help', helpNote: 'Only <b>teachers</b> can see this section. Ask colleagues for help – they can reply with one click.',
   hTitle: 'What do you need?', hTitlePh: 'e.g. Need a supervisor at an event', hBody: 'Description (optional)', hBodyPh: 'Briefly describe what help you need.',
-  hDate: 'Date (optional)', hTime: 'Time (optional)', hPlace: 'Place (optional)',
+  hDate: 'Date (optional)', hTime: 'Time (optional)', hTimes: 'Time (optional, you can add several)', hPickTimes: 'Tick the times you can help:', hNobody: 'nobody', hPlace: 'Place (optional)',
   hOffered: 'Offered to help', hNoOffers: 'No offers yet', hDelQ: 'Delete this request?', hResolve: 'Resolved', hReopen: 'Reopen', hYouHelp: "You're helping",
   hHelping: 'Helping', hCanHelp: 'I can help', hMine: 'Your request', hResolved: 'Resolved', hOpenList: 'Help requests', hResolvedList: 'Resolved',
   hEmpty: 'Nobody needs help right now.', nHelpAsk: (n, x) => `${n} asks for help: “${x}”`, nHelpOffer: (n, x) => `${n} can help: “${x}”`,
@@ -531,8 +535,8 @@ const mapSignup = r => ({ slot:r.slot||'', id:r.id, jobId:r.job_id, studentKey:r
   status:r.status, at:ms(r.created_at), statusAt:ms(r.status_at) });
 const mapMsg = r => ({ id:r.id, jobId:r.job_id, authorKey:r.author_id, authorName:r.author_name, role:r.role, text:r.text, at:ms(r.created_at) });
 
-const mapPost = r => ({ id:r.id, authorKey:r.author_id, authorName:r.author_name, title:r.title, body:r.body||'', date:r.date||'', time:r.time||'', place:r.place||'', resolved:!!r.resolved, at:ms(r.created_at) });
-const mapOffer = r => ({ id:r.id, postId:r.post_id, teacherKey:r.teacher_id, teacherName:r.teacher_name, at:ms(r.created_at) });
+const mapPost = r => ({ id:r.id, authorKey:r.author_id, authorName:r.author_name, title:r.title, body:r.body||'', date:r.date||'', time:r.time||'', place:r.place||'', resolved:!!r.resolved, times:Array.isArray(r.times)?r.times:[], at:ms(r.created_at) });
+const mapOffer = r => ({ id:r.id, postId:r.post_id, teacherKey:r.teacher_id, teacherName:r.teacher_name, slot:r.slot||'', at:ms(r.created_at) });
 async function q(p){ const { data, error } = await p; if (error) throw error; return data }
 
 /* ---------- Būsena ---------- */
@@ -816,8 +820,8 @@ function notifs(){
       html:'🆘 ' + t('nHelpAsk', `<b class="y">${esc(p.authorName)}</b>`, esc(p.title)) }));
     const myPosts = Object.fromEntries(S.tposts.filter(p => p.authorKey===me.key).map(p => [p.id, p]));
     S.toffers.filter(o => myPosts[o.postId] && o.at > S.seenAt).forEach(o => out.push({
-      at:o.at, help:o.postId, text:t('nHelpOffer', o.teacherName, myPosts[o.postId].title),
-      html:'🙋 ' + t('nHelpOffer', `<b class="g">${esc(o.teacherName)}</b>`, esc(myPosts[o.postId].title)) }));
+      at:o.at, help:o.postId, text:t('nHelpOffer', o.teacherName, myPosts[o.postId].title) + (o.slot ? ` (${o.slot})` : ''),
+      html:'🙋 ' + t('nHelpOffer', `<b class="g">${esc(o.teacherName)}</b>`, esc(myPosts[o.postId].title)) + (o.slot ? ` <span class="m">(🕑 ${esc(o.slot)})</span>` : '') }));
   }
   S.messages.filter(m=>rel.has(m.jobId) && m.authorKey!==me.key && (m.at||0)>S.seenAt && J[m.jobId]).forEach(m=>out.push({
     at:m.at, jobId:m.jobId, chat:true, text:`${m.authorName}: ${m.text}`,
@@ -1048,14 +1052,21 @@ function teacherView(){
       ${doneJobs.length ? `<h2>${t('doneJobs')}</h2><div class="list">${doneJobs.map(teacherCard).join('')}</div>` : ''}`}
     ${hideModal()}`, tabs };
 }
+const hTimeRow = tm => `<div class="trow"><input type="time" name="htimes" value="${esc(tm||'')}"><button type="button" class="linkbtn" data-rmhtime>✕</button></div>`;
+function syncHTimes(){
+  const rows = document.querySelectorAll('#hTimeList .trow'), add = $('#hAddTime');
+  if (add) add.style.display = rows.length >= 12 ? 'none' : '';
+  document.querySelectorAll('[data-rmhtime]').forEach(b => b.onclick = () => { b.closest('.trow').remove(); if (!document.querySelector('#hTimeList .trow')) $('#hTimeList').insertAdjacentHTML('beforeend', hTimeRow('')); syncHTimes() });
+}
 function helpForm(){
   return `<form class="newjob" id="newHelp">
     <h3 class="g">🤝 ${t('askHelp')}</h3>
     <label class="f"><span>${t('hTitle')}</span><input name="title" required maxlength="200" placeholder="${t('hTitlePh')}"></label>
     <label class="f"><span>${t('hBody')}</span><textarea name="body" maxlength="3000" placeholder="${t('hBodyPh')}"></textarea></label>
-    <div class="row2">
-      <label class="f"><span>${t('hDate')}</span><input name="date" type="date" min="${today()}"></label>
-      <label class="f"><span>${t('hTime')}</span><input name="time" type="time"></label>
+    <label class="f"><span>${t('hDate')}</span><input name="date" type="date" min="${today()}"></label>
+    <div class="f"><span class="flabel">${t('hTimes')}</span>
+      <div id="hTimeList">${hTimeRow('')}</div>
+      <button type="button" class="fadd" id="hAddTime">＋ ${t('addTime')}</button>
     </div>
     <label class="f"><span>${t('hPlace')}</span><input name="place" maxlength="200" placeholder="${t('fPlacePh')}"></label>
     <div class="err" id="helpErr"></div>
@@ -1065,16 +1076,28 @@ function helpForm(){
 function helpCard(p){
   const mine = p.authorKey === S.me.key;
   const offers = S.toffers.filter(o => o.postId === p.id).sort((a,b)=>a.at-b.at);
+  const multi = p.times.length > 1 ? p.times : null;
+  const tText = multi ? multi.join(' / ') : (p.times[0] || p.time || '');
   const myOffer = offers.find(o => o.teacherKey === S.me.key);
-  const names = offers.map(o => esc(o.teacherName)).join(', ');
-  const meta = (p.date || p.time || p.place) ? `<div class="meta">${p.date ? `<span class="y">📅 ${esc(fmtDate(p.date))}${p.time ? ' · '+esc(p.time) : ''}</span>` : p.time ? `<span class="y">🕑 ${esc(p.time)}</span>` : ''}${p.place ? `<span>📍 ${esc(p.place)}</span>` : ''}</div>` : '';
+  const names = [...new Set(offers.map(o => o.teacherName))].map(esc).join(', ');
+  const meta = (p.date || tText || p.place) ? `<div class="meta">${p.date ? `<span class="y">📅 ${esc(fmtDate(p.date))}${tText ? ' · '+esc(tText) : ''}</span>` : tText ? `<span class="y">🕑 ${esc(tText)}</span>` : ''}${p.place ? `<span>📍 ${esc(p.place)}</span>` : ''}</div>` : '';
+  const bySlot = tm => offers.filter(o => o.slot === tm);
   const del = S.confirmDelPost === p.id;
   let foot;
   if (mine) foot = `
-    <div class="offers">🙋 ${offers.length ? `${t('hOffered')}: <b>${names}</b>` : `<span class="m">${t('hNoOffers')}</span>`}</div>
+    ${multi ? `<div class="offers slotoffers">${multi.map(tm => { const os = bySlot(tm); return `<div>🕑 <b class="tm">${esc(tm)}</b> — ${os.length ? `<b>${os.map(o=>esc(o.teacherName)).join(', ')}</b>` : `<span class="m">${t('hNoOffers')}</span>`}</div>` }).join('')}</div>`
+            : `<div class="offers">🙋 ${offers.length ? `${t('hOffered')}: <b>${names}</b>` : `<span class="m">${t('hNoOffers')}</span>`}</div>`}
     <div class="foot" style="margin-top:10px;justify-content:flex-end">
       ${del ? `<span class="m">${t('hDelQ')}</span><button class="btn sm ghost" data-delpostno>${t('no')}</button><button class="btn sm" style="background:var(--r);color:#000" data-delpost="${esc(p.id)}">${t('yesDel')}</button>`
             : `<button class="btn sm out-g" data-resolve="${esc(p.id)}">${p.resolved ? '↺ '+t('hReopen') : '✓ '+t('hResolve')}</button><button class="linkbtn" data-delpostask="${esc(p.id)}">${t('del')}</button>`}
+    </div>`;
+  else if (multi) foot = `<div class="slots" style="margin-top:4px">
+      <span class="m">${p.resolved ? t('hResolved') : t('hPickTimes')}</span>
+      <div class="slotrow">${multi.map(tm => { const os = bySlot(tm), me = os.find(o => o.teacherKey === S.me.key);
+        const who = os.length ? os.map(o => esc(o.teacherName.split(' ')[0])).join(', ') : t('hNobody');
+        return p.resolved ? `<span class="slot full"><b>${esc(tm)}</b><small>${who}</small></span>`
+          : me ? `<button class="slot on" data-unoffer="${esc(me.id)}"><b>✓ ${esc(tm)}</b><small>${t('hYouHelp')}</small></button>`
+               : `<button class="slot" data-offer="${esc(p.id)}" data-oslot="${esc(tm)}"><b>${esc(tm)}</b><small>${who}</small></button>` }).join('')}</div>
     </div>`;
   else foot = `<div class="foot" style="margin-top:4px">
       <span class="${myOffer ? 'status g' : 'm'}">${myOffer ? '✓ '+t('hYouHelp') : offers.length ? '🙋 '+t('hHelping')+': '+names : ''}</span>
@@ -1298,15 +1321,25 @@ function bindView(){
     const el = document.getElementById('post-' + b.dataset.gohelp); el && el.scrollIntoView({ behavior:'smooth', block:'center' }) });
   on('#openHelp', () => { S.helpOpen = true; renderApp(); const i = $('#newHelp input[name=title]'); i && i.focus() });
   on('#cancelHelp', () => { S.helpOpen = false; renderApp() });
+  syncHTimes();
+  const hat = $('#hAddTime');
+  if (hat) hat.onclick = () => {
+    const ins = [...document.querySelectorAll('#hTimeList input')], last = ins.length ? ins[ins.length-1].value : '';
+    let nv = '';
+    if (last){ let [h, m] = last.split(':').map(Number); h = Math.min(23, h + 1); nv = String(h).padStart(2,'0') + ':' + String(m||0).padStart(2,'0') }
+    $('#hTimeList').insertAdjacentHTML('beforeend', hTimeRow(nv)); syncHTimes();
+    const all = document.querySelectorAll('#hTimeList input'); all[all.length-1].focus();
+  };
   const hf = $('#newHelp');
   if (hf) hf.onsubmit = async ev => {
     ev.preventDefault();
     const f = new FormData(hf), btn = hf.querySelector('button:not([type=button])'); btn.disabled = true;
-    const post = { title:(f.get('title')||'').trim(), body:(f.get('body')||'').trim(), date:f.get('date') || null, time:f.get('time') || '', place:(f.get('place')||'').trim(), author_id:S.me.key };
+    const times = [...new Set(f.getAll('htimes').filter(Boolean))].sort();
+    const post = { title:(f.get('title')||'').trim(), body:(f.get('body')||'').trim(), date:f.get('date') || null, time:times[0] || '', times, place:(f.get('place')||'').trim(), author_id:S.me.key };
     try{ await q(sb.from('teacher_posts').insert(post)); S.helpOpen = false; document.activeElement.blur(); toast(t('tHelpPosted')); await loadAll(); renderApp() }
     catch(e){ $('#helpErr').textContent = errMsg(e); btn.disabled = false }
   };
-  on('[data-offer]', b => { b.disabled = true; act(() => q(sb.from('teacher_offers').insert({ post_id:b.dataset.offer, teacher_id:S.me.key })), t('tOffered')) });
+  on('[data-offer]', b => { b.disabled = true; act(() => q(sb.from('teacher_offers').insert({ post_id:b.dataset.offer, teacher_id:S.me.key, slot:b.dataset.oslot || '' })), t('tOffered')) });
   on('[data-unoffer]', b => { b.disabled = true; act(() => q(sb.from('teacher_offers').delete().eq('id', b.dataset.unoffer)), t('tUnoffered')) });
   on('[data-resolve]', b => { const p = S.tposts.find(x=>x.id===b.dataset.resolve); if (!p) return; b.disabled = true;
     act(() => q(sb.from('teacher_posts').update({ resolved: !p.resolved }).eq('id', p.id)), p.resolved ? null : t('tResolved')) });
