@@ -429,6 +429,7 @@ Object.assign(I18N.lt, {
   tHelpPosted: 'Prašymas paskelbtas!', tOffered: 'Ačiū! Autorius gaus pranešimą 🙌', tUnoffered: 'Pagalba atšaukta', tResolved: 'Pažymėta kaip išspręsta ✓', tHelpDeleted: 'Prašymas ištrintas', errOwnPost: 'Negalite pasisiūlyti savo paties prašymui.',
   awardQ: n => `Kiek valandų įskaityti: ${n}?`, confirm: 'Patvirtinti', allStudents: 'visiems', errHours: 'Įveskite valandų skaičių (0,5–100).',
   hNeeded: 'Kiek žmonių reikia (jei keli laikai – kiekvienam)', hNeed: (k, n) => `Reikia: ${n} (pasisiūlė ${k})`, hNeedEach: n => `Reikia: po ${n} kiekvienam laikui`, hEnough: 'Pakanka žmonių',
+  tomorrow: 'Rytoj', dontForget: 'Nepamirškite ateiti!', nRemind: (x, e) => `Rytoj: „${x}“${e ? ' · '+e : ''}. Nepamirškite ateiti!`,
   jobFull: 'Visos vietos užimtos – kiti mokiniai šio darbo nebemato. Jei kas nors atšauks, darbas vėl atsiras.',
   myStats: 'Mano statistika', stDone: 'Atlikti darbai', stFailed: 'Neatlikti darbai', stPending: 'Laukia patvirtinimo', stDoneShort: 'atlikta', stNone: 'Dar nėra įvertintų darbų. Statistika atsiras, kai mokytojas patvirtins pirmą darbą.',
   themeLight: 'Šviesus fonas', themeDark: 'Tamsus fonas',
@@ -462,6 +463,7 @@ Object.assign(I18N.en, {
   tHelpPosted: 'Request posted!', tOffered: 'Thanks! The author will be notified 🙌', tUnoffered: 'Offer withdrawn', tResolved: 'Marked as resolved ✓', tHelpDeleted: 'Request deleted', errOwnPost: "You can't offer help on your own request.",
   awardQ: n => `How many hours to award: ${n}?`, confirm: 'Confirm', allStudents: 'everyone', errHours: 'Enter the number of hours (0.5–100).',
   hNeeded: 'People needed (per time, if several)', hNeed: (k, n) => `Needed: ${n} (${k} offered)`, hNeedEach: n => `Needed: ${n} for each time`, hEnough: 'Enough people',
+  tomorrow: 'Tomorrow', dontForget: "Don't forget to come!", nRemind: (x, e) => `Tomorrow: “${x}”${e ? ' · '+e : ''}. Don't forget to come!`,
   jobFull: 'All spots are taken – other students no longer see this task. If someone cancels, it appears again.',
   myStats: 'My statistics', stDone: 'Completed tasks', stFailed: 'Not completed', stPending: 'Awaiting approval', stDoneShort: 'completed', stNone: 'No evaluated tasks yet. Statistics will appear once a teacher approves your first task.',
   themeLight: 'Light mode', themeDark: 'Dark mode',
@@ -821,6 +823,14 @@ function notifs(){
   } else {
     const mine = S.signups.filter(s=>s.studentKey===me.key);
     rel = new Set(mine.map(s=>s.jobId));
+    // Priminimas dieną prieš darbą (rodomas nuo tos dienos vidurnakčio)
+    const tmr = plusDays(1), dayStart = new Date(today() + 'T00:00').getTime();
+    mine.filter(s => s.status==='registered' && J[s.jobId] && J[s.jobId].date === tmr && !J[s.jobId].completed && dayStart > S.seenAt).forEach(s => {
+      const j = J[s.jobId], tm = (slotsOf(j) && s.slot) ? s.slot : (j.time || '');
+      const extra = [tm, j.place].filter(Boolean).join(' · ');
+      out.push({ at: Math.max(dayStart, s.at||0), jobId: j.id, text: t('nRemind', j.title, extra),
+        html: `⏰ <b class="y">${t('tomorrow')}:</b> „${esc(j.title)}“${extra ? ` <span class="m">· ${esc(extra)}</span>` : ''}. ${t('dontForget')}` });
+    });
     mine.filter(s=>s.status!=='registered' && (s.statusAt||0)>S.seenAt && J[s.jobId]).forEach(s=>out.push({
       at:s.statusAt, jobId:s.jobId, text:`${J[s.jobId].title}: ${s.status==='done'?t('nDone'):t('nFailed')}`,
       html: s.status==='done' ? `✅ ${esc(J[s.jobId].title)} – <b class="g">${t('nDone')}, +${esc(s.hours)} ${t('hrs')}</b>`
