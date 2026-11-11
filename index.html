@@ -359,7 +359,7 @@ const I18N = {
     relistTitle: '↻ Skelbti iš naujo', newJobTitle: 'Naujas darbas',
     fTitle: 'Ką reikia padaryti? (pavadinimas)', fTitlePh: 'pvz. Bibliotekos knygų tvarkymas',
     fPlace: 'Vieta', fPlacePh: 'pvz. 204 kabinetas, biblioteka', fDate: 'Data', fTime: 'Kada ateiti',
-    fHours: 'Kiek valandų truks darbas', fGets: 'Kiek valandų gaus mokinys', hoursHint: 'Kiek valandų įskaityti mokiniui, nurodysite pažymėdami, kad darbas atliktas.', lasts: h => `truks ${h} val.`, fSpots: 'Kiek mokinių reikia', fTask: 'Užduotis (neprivaloma)',
+    fHours: 'Kiek valandų truks darbas', fGets: 'Kiek valandų gaus mokinys', hoursHint: 'Kiek valandų įskaityti mokiniui, nurodysite pažymėdami, kad darbas atliktas.', lasts: h => `truks ${h} val.`, fSpots: 'Kiek mokinių reikia (jei keli laikai – kiekvienam)', fTask: 'Užduotis (neprivaloma)',
     fTaskPh: 'Trumpai aprašykite, ką mokiniai darys ir ką atsinešti.', publish: 'Paskelbti',
     tRegistered: 'Užregistruota! Mokytojas gaus pranešimą 👋', tUnreg: 'Registracija atšaukta',
     tPublished: 'Darbas paskelbtas!', tRepublished: 'Darbas paskelbtas iš naujo!',
@@ -409,7 +409,7 @@ const I18N = {
     relistTitle: '↻ Post again', newJobTitle: 'New task',
     fTitle: 'What needs to be done? (title)', fTitlePh: 'e.g. Tidying the library',
     fPlace: 'Place', fPlacePh: 'e.g. Room 204, library', fDate: 'Date', fTime: 'When to come',
-    fHours: 'How many hours the work takes', fGets: 'Hours the student will get', hoursHint: "You'll set the hours to award when you mark the task as completed.", lasts: h => `takes ${h} h`, fSpots: 'Students needed', fTask: 'Task details (optional)',
+    fHours: 'How many hours the work takes', fGets: 'Hours the student will get', hoursHint: "You'll set the hours to award when you mark the task as completed.", lasts: h => `takes ${h} h`, fSpots: 'Students needed (per time, if several)', fTask: 'Task details (optional)',
     fTaskPh: 'Briefly describe what students will do and what to bring.', publish: 'Post',
     tRegistered: "You're signed up! The teacher will be notified 👋", tUnreg: 'Sign-up cancelled',
     tPublished: 'Task posted!', tRepublished: 'Task posted again!',
@@ -418,7 +418,7 @@ const I18N = {
 };
 
 Object.assign(I18N.lt, {
-  fTimes: 'Kada ateiti (galite nurodyti kelis laikus)', addTime: 'Pridėti laiką', fSpotsEach: 'Kiek mokinių reikia kiekvienam laikui',
+  fTimes: 'Kada ateiti (galite nurodyti kelis laikus)', addTime: 'Pridėti laiką', fSpotsEach: 'Kiek mokinių reikia (jei keli laikai – kiekvienam)',
   chooseTime: 'Pasirinkite laiką:', slotLeft: n => `liko ${n}`, slotFull: 'užimta', errSlot: 'Pasirinkite laiką.', tRegisteredSlot: tm => `Užregistruota ${tm} laikui! 👋`,
   tabJobs: 'Darbai mokiniams', tabHelp: 'Mokytojams', askHelp: 'Prašyti pagalbos', helpNote: 'Šią skiltį mato <b>tik mokytojai</b>. Paprašykite kolegų pagalbos – jie atsakys vienu paspaudimu.',
   hTitle: 'Ko reikia?', hTitlePh: 'pvz. Reikia budinčio renginyje', hBody: 'Aprašymas (neprivaloma)', hBodyPh: 'Trumpai aprašykite, kokios pagalbos reikia.',
@@ -452,7 +452,7 @@ Object.assign(I18N.lt, {
   noConfig: 'Svetainė dar nesukonfigūruota: index.html faile įrašykite SUPABASE_URL ir SUPABASE_ANON_KEY.'
 });
 Object.assign(I18N.en, {
-  fTimes: 'When to come (you can add several times)', addTime: 'Add a time', fSpotsEach: 'Students needed for each time',
+  fTimes: 'When to come (you can add several times)', addTime: 'Add a time', fSpotsEach: 'Students needed (per time, if several)',
   chooseTime: 'Choose a time:', slotLeft: n => `${n} left`, slotFull: 'full', errSlot: 'Please choose a time.', tRegisteredSlot: tm => `Signed up for ${tm}! 👋`,
   tabJobs: 'Student tasks', tabHelp: 'For teachers', askHelp: 'Ask for help', helpNote: 'Only <b>teachers</b> can see this section. Ask colleagues for help – they can reply with one click.',
   hTitle: 'What do you need?', hTitlePh: 'e.g. Need a supervisor at an event', hBody: 'Description (optional)', hBodyPh: 'Briefly describe what help you need.',
