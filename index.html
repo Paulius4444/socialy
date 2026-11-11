@@ -282,6 +282,7 @@
   .slot.on small{color:#000}
   .slotoffers{display:flex;flex-direction:column;gap:6px}
   .slotoffers .tm{color:var(--text)}
+  .fullbar{margin:-2px 0 10px;padding:8px 12px;border-radius:10px;background:rgba(255,214,10,.1);color:var(--yt);font-size:13px;font-weight:600}
   .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:9}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
   .hidden{display:none!important}
@@ -422,6 +423,7 @@ Object.assign(I18N.lt, {
   hHelping: 'Padeda', hCanHelp: 'Galiu padėti', hMine: 'Jūsų prašymas', hResolved: 'Išspręsta', hOpenList: 'Prašymai pagalbai', hResolvedList: 'Išspręsti',
   hEmpty: 'Šiuo metu niekam nereikia pagalbos.', nHelpAsk: (n, x) => `${n} prašo pagalbos: „${x}“`, nHelpOffer: (n, x) => `${n} gali padėti: „${x}“`,
   tHelpPosted: 'Prašymas paskelbtas!', tOffered: 'Ačiū! Autorius gaus pranešimą 🙌', tUnoffered: 'Pagalba atšaukta', tResolved: 'Pažymėta kaip išspręsta ✓', tHelpDeleted: 'Prašymas ištrintas', errOwnPost: 'Negalite pasisiūlyti savo paties prašymui.',
+  jobFull: 'Visos vietos užimtos – kiti mokiniai šio darbo nebemato. Jei kas nors atšauks, darbas vėl atsiras.',
   myStats: 'Mano statistika', stDone: 'Atlikti darbai', stFailed: 'Neatlikti darbai', stPending: 'Laukia patvirtinimo', stDoneShort: 'atlikta', stNone: 'Dar nėra įvertintų darbų. Statistika atsiras, kai mokytojas patvirtins pirmą darbą.',
   themeLight: 'Šviesus fonas', themeDark: 'Tamsus fonas',
   forgot: 'Pamiršote slaptažodį?', forgotTitle: 'Atkurti <span class="y">slaptažodį</span>',
@@ -452,6 +454,7 @@ Object.assign(I18N.en, {
   hHelping: 'Helping', hCanHelp: 'I can help', hMine: 'Your request', hResolved: 'Resolved', hOpenList: 'Help requests', hResolvedList: 'Resolved',
   hEmpty: 'Nobody needs help right now.', nHelpAsk: (n, x) => `${n} asks for help: “${x}”`, nHelpOffer: (n, x) => `${n} can help: “${x}”`,
   tHelpPosted: 'Request posted!', tOffered: 'Thanks! The author will be notified 🙌', tUnoffered: 'Offer withdrawn', tResolved: 'Marked as resolved ✓', tHelpDeleted: 'Request deleted', errOwnPost: "You can't offer help on your own request.",
+  jobFull: 'All spots are taken – other students no longer see this task. If someone cancels, it appears again.',
   myStats: 'My statistics', stDone: 'Completed tasks', stFailed: 'Not completed', stPending: 'Awaiting approval', stDoneShort: 'completed', stNone: 'No evaluated tasks yet. Statistics will appear once a teacher approves your first task.',
   themeLight: 'Light mode', themeDark: 'Dark mode',
   forgot: 'Forgot password?', forgotTitle: 'Reset <span class="y">password</span>',
@@ -924,7 +927,8 @@ function studentView(){
   const earned = mine.filter(s=>s.status==='done').reduce((a,s)=>a+(+s.hours||0),0);
   const pending = mine.filter(s=>s.status==='registered');
   const jobsById = Object.fromEntries(S.jobs.map(j=>[j.id,j]));
-  const visible = S.jobs.filter(j => !j.completed);
+  // Pilni darbai mokiniams nerodomi; atsilaisvinus vietai – vėl matomi
+  const visible = S.jobs.filter(j => !j.completed && (mineBy[j.id] || taken(j.id) < capacity(j)));
   const open = visible.filter(j => j.date >= today() && !mineBy[j.id]).sort(byDate);
   const myList = mine.map(s=>({s, j:jobsById[s.jobId]})).filter(x=>x.j && !x.j.completed).sort((a,b)=>byDate(b.j,a.j));
   const hist = mine.filter(s=>s.status==='done').map(s=>({s, j:jobsById[s.jobId]})).filter(x=>x.j).sort((a,b)=>byDate(b.j,a.j));
@@ -1129,6 +1133,7 @@ function teacherCard(j){
   return `
   <div class="job ${j.completed?'done':isPast && !pend.length?'past':''}">
     <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">+${esc(j.hours)} ${t('hrs')}</span></div>
+    ${!j.completed && !isPast && taken(j.id) >= capacity(j) ? `<div class="fullbar">🔒 ${t('jobFull')}</div>` : ''}
     ${j.completed ? `<div class="donebar"><span>✓ ${t('jobCompleted')}</span><button class="btn sm out-g" data-hide="${esc(j.id)}">${t('hideBtn')}</button></div>` : ''}
     <div class="meta"><span class="y">📅 ${esc(fmtDate(j.date))}${timeText(j)?' · '+esc(timeText(j)):''}</span><span>📍 ${esc(j.place)}</span>${durText(j)}<span class="m">👥 ${t('nSignedUp', taken(j.id), capacity(j))}</span></div>
     ${slots ? `<div class="slotsum">${slots.map(tm=>`<span>🕑 ${esc(tm)} <b>${takenSlot(j.id,tm)}/${esc(j.spots)}</b></span>`).join('')}</div>` : ''}
