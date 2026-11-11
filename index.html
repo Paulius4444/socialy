@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Socialy</title>
 <script>try{if(localStorage.getItem('socialy_theme')==='light')document.documentElement.classList.add('light')}catch(e){}</script>
-<meta name="description" content="Socialy – bendruomeninių valandų valdymas mokykloje">
+<meta name="description" content="Socialy – bendruomeninės veiklos valdymas mokykloje">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%230a0a0a%22/%3E%3Ccircle cx=%2224%22 cy=%2232%22 r=%2210%22 fill=%22%23FFD60A%22/%3E%3Ccircle cx=%2244%22 cy=%2232%22 r=%2210%22 fill=%22%233DDC84%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -283,6 +283,10 @@
   .slotoffers{display:flex;flex-direction:column;gap:6px}
   .slotoffers .tm{color:var(--text)}
   .fullbar{margin:-2px 0 10px;padding:8px 12px;border-radius:10px;background:rgba(255,214,10,.1);color:var(--yt);font-size:13px;font-weight:600}
+  .award{margin:4px 0 8px;padding:10px 12px;border:1px solid var(--g);border-radius:10px;background:rgba(61,220,132,.06)}
+  .award>.m{display:block;font-size:13px;margin-bottom:8px}
+  .awrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .awrow input{width:90px;padding:8px 10px}
   .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:9}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
   .hidden{display:none!important}
@@ -312,7 +316,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_6xxPiGoPGke4ZHTVNEaMzg_FkRsWm0S';
 
 const I18N = {
   lt: {
-    tagline: 'Bendruomeninės valandos – paprastai.',
+    tagline: 'Bendruomeninės veiklos – paprastai.',
     f1: 'Visi darbai matomi sąraše ir kalendoriuje', f2: 'Mokytojui patvirtinus atliktą darbą, valandos įskaitomos automatiškai', f3: 'Kilus klausimų, rašykite mokytojui darbo komentaruose',
     welcome: 'Sveiki <span class="y">sugrįžę</span>', create: 'Sukurkite <span class="g">paskyrą</span>',
     loginSub: 'Prisijunkite mokyklos el. paštu.', signupSub: 'Užtruks mažiau nei minutę.',
@@ -355,14 +359,14 @@ const I18N = {
     relistTitle: '↻ Skelbti iš naujo', newJobTitle: 'Naujas darbas',
     fTitle: 'Ką reikia padaryti? (pavadinimas)', fTitlePh: 'pvz. Bibliotekos knygų tvarkymas',
     fPlace: 'Vieta', fPlacePh: 'pvz. 204 kabinetas, biblioteka', fDate: 'Data', fTime: 'Kada ateiti',
-    fHours: 'Kiek valandų truks darbas', fGets: 'Kiek valandų gaus mokinys', hoursHint: 'Užsipildo pagal darbo trukmę, bet galite pakeisti.', lasts: h => `truks ${h} val.`, fSpots: 'Kiek mokinių reikia', fTask: 'Užduotis (neprivaloma)',
+    fHours: 'Kiek valandų truks darbas', fGets: 'Kiek valandų gaus mokinys', hoursHint: 'Kiek valandų įskaityti mokiniui, nurodysite pažymėdami, kad darbas atliktas.', lasts: h => `truks ${h} val.`, fSpots: 'Kiek mokinių reikia', fTask: 'Užduotis (neprivaloma)',
     fTaskPh: 'Trumpai aprašykite, ką mokiniai darys ir ką atsinešti.', publish: 'Paskelbti',
     tRegistered: 'Užregistruota! Mokytojas gaus pranešimą 👋', tUnreg: 'Registracija atšaukta',
     tPublished: 'Darbas paskelbtas!', tRepublished: 'Darbas paskelbtas iš naujo!',
     tDone: 'Darbas atliktas – valandos įskaitytos ✓', tFail: 'Pažymėta: darbas neatliktas', tAll: 'Visiems įskaityta ✓', tDeleted: 'Darbas ištrintas'
   },
   en: {
-    tagline: 'Community hours, made simple.',
+    tagline: 'Community activities, made simple.',
     f1: 'See all tasks in a list and on a calendar', f2: 'Hours are added automatically once the teacher confirms the task is done', f3: 'Questions? Write to the teacher in the task comments',
     welcome: 'Welcome <span class="y">back</span>', create: 'Create an <span class="g">account</span>',
     loginSub: 'Sign in with your school email.', signupSub: 'Takes less than a minute.',
@@ -405,7 +409,7 @@ const I18N = {
     relistTitle: '↻ Post again', newJobTitle: 'New task',
     fTitle: 'What needs to be done? (title)', fTitlePh: 'e.g. Tidying the library',
     fPlace: 'Place', fPlacePh: 'e.g. Room 204, library', fDate: 'Date', fTime: 'When to come',
-    fHours: 'How many hours the work takes', fGets: 'Hours the student will get', hoursHint: 'Filled in from the work length, but you can change it.', lasts: h => `takes ${h} h`, fSpots: 'Students needed', fTask: 'Task details (optional)',
+    fHours: 'How many hours the work takes', fGets: 'Hours the student will get', hoursHint: "You'll set the hours to award when you mark the task as completed.", lasts: h => `takes ${h} h`, fSpots: 'Students needed', fTask: 'Task details (optional)',
     fTaskPh: 'Briefly describe what students will do and what to bring.', publish: 'Post',
     tRegistered: "You're signed up! The teacher will be notified 👋", tUnreg: 'Sign-up cancelled',
     tPublished: 'Task posted!', tRepublished: 'Task posted again!',
@@ -423,6 +427,8 @@ Object.assign(I18N.lt, {
   hHelping: 'Padeda', hCanHelp: 'Galiu padėti', hMine: 'Jūsų prašymas', hResolved: 'Išspręsta', hOpenList: 'Prašymai pagalbai', hResolvedList: 'Išspręsti',
   hEmpty: 'Šiuo metu niekam nereikia pagalbos.', nHelpAsk: (n, x) => `${n} prašo pagalbos: „${x}“`, nHelpOffer: (n, x) => `${n} gali padėti: „${x}“`,
   tHelpPosted: 'Prašymas paskelbtas!', tOffered: 'Ačiū! Autorius gaus pranešimą 🙌', tUnoffered: 'Pagalba atšaukta', tResolved: 'Pažymėta kaip išspręsta ✓', tHelpDeleted: 'Prašymas ištrintas', errOwnPost: 'Negalite pasisiūlyti savo paties prašymui.',
+  awardQ: n => `Kiek valandų įskaityti: ${n}?`, confirm: 'Patvirtinti', allStudents: 'visiems', errHours: 'Įveskite valandų skaičių (0,5–100).',
+  hNeeded: 'Kiek žmonių reikia (jei keli laikai – kiekvienam)', hNeed: (k, n) => `Reikia: ${n} (pasisiūlė ${k})`, hNeedEach: n => `Reikia: po ${n} kiekvienam laikui`, hEnough: 'Pakanka žmonių',
   jobFull: 'Visos vietos užimtos – kiti mokiniai šio darbo nebemato. Jei kas nors atšauks, darbas vėl atsiras.',
   myStats: 'Mano statistika', stDone: 'Atlikti darbai', stFailed: 'Neatlikti darbai', stPending: 'Laukia patvirtinimo', stDoneShort: 'atlikta', stNone: 'Dar nėra įvertintų darbų. Statistika atsiras, kai mokytojas patvirtins pirmą darbą.',
   themeLight: 'Šviesus fonas', themeDark: 'Tamsus fonas',
@@ -454,6 +460,8 @@ Object.assign(I18N.en, {
   hHelping: 'Helping', hCanHelp: 'I can help', hMine: 'Your request', hResolved: 'Resolved', hOpenList: 'Help requests', hResolvedList: 'Resolved',
   hEmpty: 'Nobody needs help right now.', nHelpAsk: (n, x) => `${n} asks for help: “${x}”`, nHelpOffer: (n, x) => `${n} can help: “${x}”`,
   tHelpPosted: 'Request posted!', tOffered: 'Thanks! The author will be notified 🙌', tUnoffered: 'Offer withdrawn', tResolved: 'Marked as resolved ✓', tHelpDeleted: 'Request deleted', errOwnPost: "You can't offer help on your own request.",
+  awardQ: n => `How many hours to award: ${n}?`, confirm: 'Confirm', allStudents: 'everyone', errHours: 'Enter the number of hours (0.5–100).',
+  hNeeded: 'People needed (per time, if several)', hNeed: (k, n) => `Needed: ${n} (${k} offered)`, hNeedEach: n => `Needed: ${n} for each time`, hEnough: 'Enough people',
   jobFull: 'All spots are taken – other students no longer see this task. If someone cancels, it appears again.',
   myStats: 'My statistics', stDone: 'Completed tasks', stFailed: 'Not completed', stPending: 'Awaiting approval', stDoneShort: 'completed', stNone: 'No evaluated tasks yet. Statistics will appear once a teacher approves your first task.',
   themeLight: 'Light mode', themeDark: 'Dark mode',
@@ -511,6 +519,7 @@ function errMsg(e){
   if (/SOCIALY_FULL/.test(m)) return t('errFullDb');
   if (/SOCIALY_BAD_SLOT/.test(m)) return t('errSlot');
   if (/SOCIALY_OWN_POST/.test(m)) return t('errOwnPost');
+  if (/SOCIALY_ENOUGH/.test(m)) return t('hEnough');
   if (/SOCIALY_PAST/.test(m)) return t('errPast');
   if (/Invalid login credentials/i.test(m)) return t('errLogin');
   if (/Email not confirmed/i.test(m)) return t('notConfirmed');
@@ -538,12 +547,12 @@ const mapSignup = r => ({ slot:r.slot||'', id:r.id, jobId:r.job_id, studentKey:r
   status:r.status, at:ms(r.created_at), statusAt:ms(r.status_at) });
 const mapMsg = r => ({ id:r.id, jobId:r.job_id, authorKey:r.author_id, authorName:r.author_name, role:r.role, text:r.text, at:ms(r.created_at) });
 
-const mapPost = r => ({ id:r.id, authorKey:r.author_id, authorName:r.author_name, title:r.title, body:r.body||'', date:r.date||'', time:r.time||'', place:r.place||'', resolved:!!r.resolved, times:Array.isArray(r.times)?r.times:[], at:ms(r.created_at) });
+const mapPost = r => ({ id:r.id, authorKey:r.author_id, authorName:r.author_name, title:r.title, body:r.body||'', date:r.date||'', time:r.time||'', place:r.place||'', resolved:!!r.resolved, needed:+r.needed||1, times:Array.isArray(r.times)?r.times:[], at:ms(r.created_at) });
 const mapOffer = r => ({ id:r.id, postId:r.post_id, teacherKey:r.teacher_id, teacherName:r.teacher_name, slot:r.slot||'', at:ms(r.created_at) });
 async function q(p){ const { data, error } = await p; if (error) throw error; return data }
 
 /* ---------- Būsena ---------- */
-const S = { me:null, jobs:[], signups:[], authMode:'login', role:'student', newOpen:false, confirmDel:null, loaded:false, calMonth:null, selDay:null, messages:[], openChat:{}, drafts:{}, seenAt:0, lastN:null, prefill:null, sessionStart:0, channel:null, authNote:'', askHide:null, asked:{}, newFiles:[], fileUrls:{}, statsOpen:false, ttab:'jobs', helpOpen:false, resolvedOpen:false, confirmDelPost:null, tposts:[], toffers:[], hoursOpen:(()=>{ try{ return localStorage.getItem('socialy_hours_open')!=='0' }catch(e){ return true } })() };
+const S = { me:null, jobs:[], signups:[], authMode:'login', role:'student', newOpen:false, confirmDel:null, loaded:false, calMonth:null, selDay:null, messages:[], openChat:{}, drafts:{}, seenAt:0, lastN:null, prefill:null, sessionStart:0, channel:null, authNote:'', askHide:null, asked:{}, newFiles:[], fileUrls:{}, awardFor:null, awardVal:null, statsOpen:false, ttab:'jobs', helpOpen:false, resolvedOpen:false, confirmDelPost:null, tposts:[], toffers:[], hoursOpen:(()=>{ try{ return localStorage.getItem('socialy_hours_open')!=='0' }catch(e){ return true } })() };
 
 /* ---------- AUTH ---------- */
 function renderAuth(){
@@ -996,7 +1005,7 @@ function jobCard(j, {mine}){
                        : `<span class="m">${t('noSpots')}</span>`;
   return `
   <div class="job ${cls}">
-    <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">+${esc(j.hours)} ${t('hrs')}</span></div>
+    <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">⏱ ${esc(j.duration||j.hours)} ${t('hrs')}</span></div>
     <div class="meta"><span class="y">📅 ${esc(fmtDate(j.date))}${timeText(j)?' · '+esc(timeText(j)):''}</span><span>📍 ${esc(j.place)}</span>${durText(j)}<span class="m">👤 ${esc(j.teacherName)}</span></div>
     ${j.task?`<div class="task">${esc(j.task)}</div>`:''}
     ${filesBlock(j)}
@@ -1073,6 +1082,7 @@ function helpForm(){
       <button type="button" class="fadd" id="hAddTime">＋ ${t('addTime')}</button>
     </div>
     <label class="f"><span>${t('hPlace')}</span><input name="place" maxlength="200" placeholder="${t('fPlacePh')}"></label>
+    <label class="f"><span>${t('hNeeded')}</span><input name="needed" type="number" min="1" max="50" value="1" required></label>
     <div class="err" id="helpErr"></div>
     <div class="row2"><button type="button" class="btn ghost" id="cancelHelp">${t('cancel')}</button><button class="btn g">${t('publish')}</button></div>
   </form>`;
@@ -1084,12 +1094,13 @@ function helpCard(p){
   const tText = multi ? multi.join(' / ') : (p.times[0] || p.time || '');
   const myOffer = offers.find(o => o.teacherKey === S.me.key);
   const names = [...new Set(offers.map(o => o.teacherName))].map(esc).join(', ');
-  const meta = (p.date || tText || p.place) ? `<div class="meta">${p.date ? `<span class="y">📅 ${esc(fmtDate(p.date))}${tText ? ' · '+esc(tText) : ''}</span>` : tText ? `<span class="y">🕑 ${esc(tText)}</span>` : ''}${p.place ? `<span>📍 ${esc(p.place)}</span>` : ''}</div>` : '';
+  const need = p.needed || 1;
+  const meta = `<div class="meta">${p.date ? `<span class="y">📅 ${esc(fmtDate(p.date))}${tText ? ' · '+esc(tText) : ''}</span>` : tText ? `<span class="y">🕑 ${esc(tText)}</span>` : ''}${p.place ? `<span>📍 ${esc(p.place)}</span>` : ''}<span class="m">👥 ${multi ? t('hNeedEach', need) : t('hNeed', offers.length, need)}</span></div>`;
   const bySlot = tm => offers.filter(o => o.slot === tm);
   const del = S.confirmDelPost === p.id;
   let foot;
   if (mine) foot = `
-    ${multi ? `<div class="offers slotoffers">${multi.map(tm => { const os = bySlot(tm); return `<div>🕑 <b class="tm">${esc(tm)}</b> — ${os.length ? `<b>${os.map(o=>esc(o.teacherName)).join(', ')}</b>` : `<span class="m">${t('hNoOffers')}</span>`}</div>` }).join('')}</div>`
+    ${multi ? `<div class="offers slotoffers">${multi.map(tm => { const os = bySlot(tm); return `<div>🕑 <b class="tm">${esc(tm)}</b> <span class="m">${os.length}/${need}</span> — ${os.length ? `<b>${os.map(o=>esc(o.teacherName)).join(', ')}</b>` : `<span class="m">${t('hNoOffers')}</span>`}</div>` }).join('')}</div>`
             : `<div class="offers">🙋 ${offers.length ? `${t('hOffered')}: <b>${names}</b>` : `<span class="m">${t('hNoOffers')}</span>`}</div>`}
     <div class="foot" style="margin-top:10px;justify-content:flex-end">
       ${del ? `<span class="m">${t('hDelQ')}</span><button class="btn sm ghost" data-delpostno>${t('no')}</button><button class="btn sm" style="background:var(--r);color:#000" data-delpost="${esc(p.id)}">${t('yesDel')}</button>`
@@ -1100,12 +1111,13 @@ function helpCard(p){
       <div class="slotrow">${multi.map(tm => { const os = bySlot(tm), me = os.find(o => o.teacherKey === S.me.key);
         const who = os.length ? os.map(o => esc(o.teacherName.split(' ')[0])).join(', ') : t('hNobody');
         return p.resolved ? `<span class="slot full"><b>${esc(tm)}</b><small>${who}</small></span>`
+          : (!me && os.length >= need) ? `<span class="slot full"><b>${esc(tm)}</b><small>${t('hEnough')}</small></span>`
           : me ? `<button class="slot on" data-unoffer="${esc(me.id)}"><b>✓ ${esc(tm)}</b><small>${t('hYouHelp')}</small></button>`
                : `<button class="slot" data-offer="${esc(p.id)}" data-oslot="${esc(tm)}"><b>${esc(tm)}</b><small>${who}</small></button>` }).join('')}</div>
     </div>`;
   else foot = `<div class="foot" style="margin-top:4px">
       <span class="${myOffer ? 'status g' : 'm'}">${myOffer ? '✓ '+t('hYouHelp') : offers.length ? '🙋 '+t('hHelping')+': '+names : ''}</span>
-      ${p.resolved ? '' : myOffer ? `<button class="btn sm out-r" data-unoffer="${esc(myOffer.id)}">${t('cancel')}</button>` : `<button class="btn sm g" data-offer="${esc(p.id)}">🙋 ${t('hCanHelp')}</button>`}
+      ${p.resolved ? '' : myOffer ? `<button class="btn sm out-r" data-unoffer="${esc(myOffer.id)}">${t('cancel')}</button>` : offers.length >= need ? `<span class="status g">✓ ${t('hEnough')}</span>` : `<button class="btn sm g" data-offer="${esc(p.id)}">🙋 ${t('hCanHelp')}</button>`}
     </div>`;
   return `<div class="job ${mine ? 'own' : ''} ${p.resolved ? 'past' : ''}" id="post-${esc(p.id)}">
     <div class="head"><h3>${esc(p.title)}</h3>${mine ? `<span class="mine-tag">${t('hMine')}</span>` : p.resolved ? `<span class="mine-tag">✓ ${t('hResolved')}</span>` : ''}</div>
@@ -1123,6 +1135,14 @@ function helpMain(){
     ${done.length ? `<button class="collh" data-collresolved><span>${t('hResolvedList')} <em>${done.length}</em></span><i>${S.resolvedOpen ? '▾' : '▸'}</i></button>
       ${S.resolvedOpen ? `<div class="list">${done.map(helpCard).join('')}</div>` : ''}` : ''}`;
 }
+function awardBox(j, key, who){
+  const v = S.awardVal != null ? S.awardVal : (j.duration || j.hours || 1);
+  return `<div class="award">
+    <span class="m">${t('awardQ', esc(who))}</span>
+    <div class="awrow"><input type="number" min="0.5" max="100" step="0.5" value="${esc(v)}" data-keep="award" id="awardIn"><span>${t('hrs')}</span>
+      <button class="btn sm g" data-okconfirm="${esc(key)}">✓ ${t('confirm')}</button><button class="btn sm ghost" data-okcancel>✕</button></div>
+  </div>`;
+}
 function teacherCard(j){
   const slots = slotsOf(j);
   const ppl = S.signups.filter(s=>s.jobId===j.id).sort((a,b)=> (a.slot||'').localeCompare(b.slot||'') || (a.at||0)-(b.at||0));
@@ -1132,7 +1152,7 @@ function teacherCard(j){
   const pend = ppl.filter(s=>s.status==='registered');
   return `
   <div class="job ${j.completed?'done':isPast && !pend.length?'past':''}">
-    <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">+${esc(j.hours)} ${t('hrs')}</span></div>
+    <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">⏱ ${esc(j.duration||j.hours)} ${t('hrs')}</span></div>
     ${!j.completed && !isPast && taken(j.id) >= capacity(j) ? `<div class="fullbar">🔒 ${t('jobFull')}</div>` : ''}
     ${j.completed ? `<div class="donebar"><span>✓ ${t('jobCompleted')}</span><button class="btn sm out-g" data-hide="${esc(j.id)}">${t('hideBtn')}</button></div>` : ''}
     <div class="meta"><span class="y">📅 ${esc(fmtDate(j.date))}${timeText(j)?' · '+esc(timeText(j)):''}</span><span>📍 ${esc(j.place)}</span>${durText(j)}<span class="m">👥 ${t('nSignedUp', taken(j.id), capacity(j))}</span></div>
@@ -1144,12 +1164,12 @@ function teacherCard(j){
         <div class="p ${s.status==='done'?'ok':s.status==='failed'?'bad':''}">
           <span><span class="nm">${s.status==='done'?'✓ ':s.status==='failed'?'✕ ':''}${esc(s.studentName)}</span>
             <small class="m">${slots && s.slot ? '🕑 '+esc(s.slot)+' · ' : ''}${s.status==='done'?t('jobDone', esc(s.hours)):s.status==='failed'?t('jobFailed'):t('signedAgo', ago(s.at))}</small></span>
-          <span class="acts">${s.status==='registered'
+          <span class="acts">${S.awardFor===s.id ? '' : s.status==='registered'
             ? `<button class="btn sm out-g" data-ok="${esc(s.id)}">${t('btnDone')}</button><button class="btn sm out-r" data-fail="${esc(s.id)}">${t('btnFail')}</button>`
             : `<button class="linkbtn" data-undo="${esc(s.id)}">${t('change')}</button>`}
           </span>
-        </div>`).join('') : `<span class="m" style="font-size:14px">${t('nobody')}</span>`}
-      ${pend.length>1 ? `<div style="text-align:right;margin-top:4px"><button class="btn sm g" data-okall="${esc(j.id)}">${t('allDone')}</button></div>`:''}
+        </div>${S.awardFor===s.id ? awardBox(j, s.id, s.studentName) : ''}`).join('') : `<span class="m" style="font-size:14px">${t('nobody')}</span>`}
+      ${pend.length>1 ? (S.awardFor==='all:'+j.id ? awardBox(j, 'all:'+j.id, t('allStudents')) : `<div style="text-align:right;margin-top:4px"><button class="btn sm g" data-okall="${esc(j.id)}">${t('allDone')}</button></div>`) : ''}
     </div>
     ${failed.length > (+j.relistedCount||0) ? `<div class="relist"><span>${t('relistQ', failed.length)}</span><button class="btn sm y" data-relist="${esc(j.id)}">${t('relistBtn')}</button></div>`:''}
     ${chatBlock(j)}
@@ -1172,7 +1192,7 @@ function hideModal(){
 }
 function otherCard(j){
   return `<div class="job ${j.date<today()?'past':''}">
-    <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">+${esc(j.hours)} ${t('hrs')}</span></div>
+    <div class="head"><h3>${esc(j.title)}</h3><span class="hrs">⏱ ${esc(j.duration||j.hours)} ${t('hrs')}</span></div>
     <div class="meta"><span class="y">${timeText(j)?'🕑 '+esc(timeText(j)):''}</span><span>📍 ${esc(j.place)}</span><span class="m">👤 ${esc(j.teacherName)} · 👥 ${taken(j.id)}/${capacity(j)}</span></div>
     ${filesBlock(j)}
     ${chatBlock(j)}
@@ -1198,10 +1218,7 @@ function newJobForm(){
       <div id="timeList">${(p.times && p.times.length ? p.times : [p.time || '14:00']).map(timeRow).join('')}</div>
       <button type="button" class="fadd" id="addTime">＋ ${t('addTime')}</button>
     </div>
-    <div class="row2">
-      <label class="f"><span>${t('fHours')}</span><input name="duration" id="durIn" type="number" min="0.5" max="100" step="0.5" value="${esc(p.duration||p.hours||2)}" required></label>
-      <label class="f"><span>${t('fGets')}</span><input name="hours" id="getIn" type="number" min="0.5" max="100" step="0.5" value="${esc(p.hours||p.duration||2)}" required></label>
-    </div>
+    <label class="f"><span>${t('fHours')}</span><input name="duration" id="durIn" type="number" min="0.5" max="100" step="0.5" value="${esc(p.duration||p.hours||2)}" required></label>
     <small class="m fhint" style="margin:-6px 0 14px">${t('hoursHint')}</small>
     <label class="f"><span id="spotsLabel">${(p.times||[]).length > 1 ? t('fSpotsEach') : t('fSpots')}</span><input name="spots" type="number" min="1" value="${esc(p.spots||5)}" required></label>
     <label class="f"><span>${t('fTask')}</span><textarea name="task" placeholder="${t('fTaskPh')}">${esc(p.task||'')}</textarea></label>
@@ -1301,7 +1318,7 @@ function bindView(){
     btn.disabled = true;
     const times = [...new Set(f.getAll('times').filter(Boolean))].sort();
     const job = { title:f.get('title').trim(), place:f.get('place').trim(), date:f.get('date'), time:times[0]||'', times,
-      hours:+f.get('hours'), duration:+f.get('duration'), spots:+f.get('spots'), task:(f.get('task')||'').trim(), teacher_id:S.me.key };
+      hours:+f.get('duration'), duration:+f.get('duration'), spots:+f.get('spots'), task:(f.get('task')||'').trim(), teacher_id:S.me.key };
     const p = S.prefill;
     try{
       if (S.newFiles.length) btn.textContent = t('uploading');
@@ -1315,10 +1332,21 @@ function bindView(){
   };
   const setStatus = (id, status) => q(sb.from('signups').update({ status }).eq('id', id));
   const askIfDone = jobId => { const j = S.jobs.find(x=>x.id===jobId); if (j && j.completed && !j.teacherHidden && !S.asked[jobId]){ S.asked[jobId]=1; S.askHide = jobId; renderApp() } };
-  on('[data-ok]',   b => { const sg=S.signups.find(x=>x.id===b.dataset.ok); b.disabled=true; act(()=>setStatus(b.dataset.ok,'done'), t('tDone')).then(()=> sg && askIfDone(sg.jobId)) });
+  on('[data-ok]',   b => { S.awardFor = b.dataset.ok; S.awardVal = null; renderApp(); const i = $('#awardIn'); i && (i.focus(), i.select()) });
+  on('[data-okcancel]', () => { S.awardFor = null; S.awardVal = null; renderApp() });
+  const ai = $('#awardIn'); if (ai){ ai.oninput = () => { S.awardVal = ai.value }; ai.onkeydown = e => { if (e.key==='Enter'){ e.preventDefault(); const c = $('[data-okconfirm]'); c && c.click() } } }
+  on('[data-okconfirm]', b => {
+    const key = b.dataset.okconfirm, h = +($('#awardIn')||{}).value;
+    if (!(h > 0 && h <= 100)) return toast(t('errHours'));
+    b.disabled = true; S.awardFor = null; S.awardVal = null;
+    if (key.startsWith('all:')){ const jid = key.slice(4);
+      act(() => q(sb.from('signups').update({ status:'done', hours:h }).eq('job_id', jid).eq('status','registered')), t('tAll')).then(()=>askIfDone(jid)) }
+    else { const sg = S.signups.find(x=>x.id===key);
+      act(() => q(sb.from('signups').update({ status:'done', hours:h }).eq('id', key)), t('tDone')).then(()=> sg && askIfDone(sg.jobId)) }
+  });
   on('[data-fail]', b => { b.disabled=true; act(()=>setStatus(b.dataset.fail,'failed'), t('tFail')) });
   on('[data-undo]', b => { b.disabled=true; act(()=>setStatus(b.dataset.undo,'registered')) });
-  on('[data-okall]', b => { const jid=b.dataset.okall; b.disabled=true; act(() => q(sb.from('signups').update({ status:'done' }).eq('job_id', jid).eq('status','registered')), t('tAll')).then(()=>askIfDone(jid)) });
+  on('[data-okall]', b => { S.awardFor = 'all:' + b.dataset.okall; S.awardVal = null; renderApp(); const i = $('#awardIn'); i && (i.focus(), i.select()) });
   on('[data-hideno]', () => { S.askHide = null; renderApp() });
   on('[data-stats]', () => { S.statsOpen = true; renderApp() });
   on('[data-ttab]', b => { S.ttab = b.dataset.ttab; S.selDay = null; renderApp(); window.scrollTo({ top:0 }) });
@@ -1340,7 +1368,7 @@ function bindView(){
     ev.preventDefault();
     const f = new FormData(hf), btn = hf.querySelector('button:not([type=button])'); btn.disabled = true;
     const times = [...new Set(f.getAll('htimes').filter(Boolean))].sort();
-    const post = { title:(f.get('title')||'').trim(), body:(f.get('body')||'').trim(), date:f.get('date') || null, time:times[0] || '', times, place:(f.get('place')||'').trim(), author_id:S.me.key };
+    const post = { needed: Math.max(1, Math.min(50, +f.get('needed') || 1)), title:(f.get('title')||'').trim(), body:(f.get('body')||'').trim(), date:f.get('date') || null, time:times[0] || '', times, place:(f.get('place')||'').trim(), author_id:S.me.key };
     try{ await q(sb.from('teacher_posts').insert(post)); S.helpOpen = false; document.activeElement.blur(); toast(t('tHelpPosted')); await loadAll(); renderApp() }
     catch(e){ $('#helpErr').textContent = errMsg(e); btn.disabled = false }
   };
