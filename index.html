@@ -7,9 +7,12 @@
 <script>try{if(localStorage.getItem('socialy_theme')==='light')document.documentElement.classList.add('light')}catch(e){}</script>
 <meta name="description" content="Socialy – bendruomeninės veiklos valdymas mokykloje">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%230a0a0a%22/%3E%3Ccircle cx=%2224%22 cy=%2232%22 r=%2210%22 fill=%22%23FFD60A%22/%3E%3Ccircle cx=%2244%22 cy=%2232%22 r=%2210%22 fill=%22%233DDC84%22/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="font-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  @font-face{font-family:'Space Grotesk';font-style:normal;font-display:swap;font-weight:300 700;src:url(font-latin-ext.woff2) format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+  @font-face{font-family:'Space Grotesk';font-style:normal;font-display:swap;font-weight:300 700;src:url(font-latin.woff2) format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
   :root{
     --bg:#0a0a0a; --card:#141414; --card2:#1b1b1b; --line:#262626;
     --text:#f2f2f2; --muted:#8a8a8a;
@@ -287,6 +290,27 @@
   .award>.m{display:block;font-size:13px;margin-bottom:8px}
   .awrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .awrow input{width:90px;padding:8px 10px}
+  .chk{display:flex;gap:10px;align-items:flex-start;font-size:14px;margin:4px 0 14px;cursor:pointer;color:var(--text2)}
+  .chk input{width:18px;height:18px;flex:none;margin-top:1px;accent-color:var(--g)}
+  .chk a,.privlink a,.appfoot a,.doctext a{color:var(--yt)}
+  .privlink{text-align:center;margin-top:18px;font-size:13px}
+  .privlink a{color:var(--muted);text-decoration:none}
+  .privlink a:hover{color:var(--text)}
+  .appfoot{display:flex;justify-content:center;gap:10px;margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+  .appfoot a{color:var(--muted);text-decoration:none}
+  .appfoot a:hover{color:var(--text)}
+  .modal.doc{max-width:640px;text-align:left;position:relative;max-height:88vh;overflow-y:auto;border-color:var(--line)}
+  .doctext{font-size:14.5px;line-height:1.55;color:var(--text2)}
+  .doctext h4{color:var(--text);font-size:15px;margin:16px 0 6px}
+  .doctext ul{padding-left:20px;display:flex;flex-direction:column;gap:4px}
+  .doctext p{margin-bottom:6px}
+  .mdbox{display:grid;gap:8px;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:14px}
+  .mdbox div{display:flex;justify-content:space-between;gap:10px}
+  .mdbox b{color:var(--muted);font-weight:500}
+  .mdact{display:grid;gap:12px}
+  .mdact>div{border:1px solid var(--line);border-radius:12px;padding:14px}
+  .mdact p{font-size:13px;margin:4px 0 10px}
+  .mdact .danger{border-color:rgba(255,92,92,.35)}
   .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:9}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
   .hidden{display:none!important}
@@ -302,7 +326,7 @@
 <div class="wrap" id="app"></div>
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
 <script>
 /* =====================================================================
    SOCIALY – NUSTATYMAI
@@ -311,6 +335,7 @@
    ===================================================================== */
 const SUPABASE_URL      = 'https://vznrlzyauqvyzmtlwbla.supabase.co';
 const EMAIL_DOMAIN      = 'kmmokykla.lt';   // leidžiamas el. pašto domenas ('' = bet koks)
+const PRIVACY_CONTACT   = '';   // el. paštas, kuriuo kreiptis dėl duomenų (pvz. 'socialy@kmmokykla.lt')
 const SUPABASE_ANON_KEY = 'sb_publishable_6xxPiGoPGke4ZHTVNEaMzg_FkRsWm0S';
 /* ===================================================================== */
 
@@ -429,6 +454,39 @@ Object.assign(I18N.lt, {
   tHelpPosted: 'Prašymas paskelbtas!', tOffered: 'Ačiū! Autorius gaus pranešimą 🙌', tUnoffered: 'Pagalba atšaukta', tResolved: 'Pažymėta kaip išspręsta ✓', tHelpDeleted: 'Prašymas ištrintas', errOwnPost: 'Negalite pasisiūlyti savo paties prašymui.',
   awardQ: n => `Kiek valandų įskaityti: ${n}?`, confirm: 'Patvirtinti', allStudents: 'visiems', errHours: 'Įveskite valandų skaičių (0,5–100).',
   hNeeded: 'Kiek žmonių reikia (jei keli laikai – kiekvienam)', hNeed: (k, n) => `Reikia: ${n} (pasisiūlė ${k})`, hNeedEach: n => `Reikia: po ${n} kiekvienam laikui`, hEnough: 'Pakanka žmonių',
+  agree1: 'Susipažinau su', privacyLink: 'privatumo pranešimu', privacyTitle: 'Privatumo pranešimas', understood: 'Supratau', myData: 'Mano duomenys', errConsent: 'Pažymėkite, kad susipažinote su privatumo pranešimu.',
+  pvContactDefault: 'mokyklos administracija (Socialy administratorius)',
+  privacyBody: c => `
+    <p><b>Socialy</b> (socialy.lt) – mokyklos įrankis bendruomeninei veiklai organizuoti ir valandoms apskaityti. Čia paprastai paaiškiname, kokius jūsų duomenis tvarkome ir kokias teises turite.</p>
+    <h4>Kokius duomenis renkame</h4>
+    <ul><li><b>Paskyros duomenys:</b> vardas, pavardė, mokyklos el. paštas (@kmmokykla.lt), vaidmuo (mokinys ar mokytojas) ir slaptažodis (saugomas tik užšifruotas – jo nemato niekas).</li>
+    <li><b>Veiklos duomenys:</b> darbai, į kuriuos registruojatės ar kuriuos skelbiate, pasirinkti laikai, įvertinimai (atlikta / neatlikta), įskaitytos valandos, komentarai, prisegti failai ir mokytojų pagalbos prašymai.</li></ul>
+    <h4>Kam naudojame</h4>
+    <p>Tik bendruomeninei veiklai organizuoti: skelbti darbus, registruotis, susisiekti dėl jų ir apskaityti valandas. Duomenų neparduodame, nenaudojame reklamai ir neperduodame kitiems tikslams.</p>
+    <h4>Kas mato jūsų duomenis</h4>
+    <ul><li><b>Vardą ir pavardę</b> – prisijungę mokyklos naudotojai (prie darbų ir komentarų).</li>
+    <li><b>El. paštą</b> – tik jūs ir administratorius.</li>
+    <li><b>Įskaitytas valandas</b> – jūs, mokytojai ir administratorius.</li>
+    <li><b>Skiltį „Mokytojams“</b> – tik mokytojai.</li></ul>
+    <h4>Kur saugoma</h4>
+    <p>Duomenys saugomi <b>Supabase</b> duomenų bazėje Europos Sąjungoje (Airijoje). Svetainė talpinama <b>GitHub Pages</b>, kuri techniniais tikslais mato lankytojų IP adresus. Ryšys šifruotas (HTTPS). Svetainė nenaudoja reklaminių ar sekimo slapukų – naršyklėje išsaugomas tik prisijungimas, kalbos ir fono pasirinkimas.</p>
+    <h4>Kiek laiko saugome</h4>
+    <p>Kol turite paskyrą. Baigus mokytis ar dirbti mokykloje, paskyra ištrinama. Paskyrą galite ištrinti ir patys bet kada.</p>
+    <h4>Jūsų teisės</h4>
+    <ul><li><b>Susipažinti</b> su savo duomenimis – „👤 Mano duomenys“ → „Atsisiųsti mano duomenis“.</li>
+    <li><b>Ištrinti</b> savo paskyrą – „👤 Mano duomenys“ → „Ištrinti mano paskyrą“.</li>
+    <li><b>Ištaisyti</b> neteisingus duomenis ar <b>apriboti</b> jų tvarkymą – kreipkitės: ${c}.</li>
+    <li><b>Pateikti skundą</b> Valstybinei duomenų apsaugos inspekcijai (vdai.lrv.lt).</li></ul>
+    <h4>Saugumas</h4>
+    <p>Prieiga ribojama duomenų bazės taisyklėmis: mokinys negali keisti valandų, matyti kitų el. paštų ar mokytojų skilties. Įvykus duomenų saugumo pažeidimui, apie jį pranešama Valstybinei duomenų apsaugos inspekcijai ir paveiktiems naudotojams.</p>
+    <h4>Kontaktai</h4>
+    <p>Klausimais dėl duomenų kreipkitės: ${c}.</p>`,
+  mdIntro: 'Čia galite atsisiųsti visus savo duomenis arba ištrinti paskyrą.', mdName: 'Vardas', mdEmail: 'El. paštas', mdRole: 'Vaidmuo',
+  mdDownload: 'Atsisiųsti mano duomenis', mdDownloadTxt: 'Gausite failą su visais Socialy saugomais jūsų duomenimis.', mdDownloadBtn: 'Atsisiųsti', mdDownloaded: 'Duomenys atsisiųsti',
+  mdDelete: 'Ištrinti mano paskyrą', mdDeleteTxtS: 'Bus ištrinta jūsų paskyra, registracijos, įskaitytos valandos ir komentarai. Atkurti nebus galima.',
+  mdDeleteTxtT: 'Bus ištrinta jūsų paskyra, paskelbti darbai, komentarai ir pagalbos prašymai. Jei mokiniams jau įskaitėte valandų, kreipkitės į administratorių, kad jų valandos nedingtų.',
+  mdDeleteBtn: 'Ištrinti paskyrą', mdDeleteSure: 'Ar tikrai? Šio veiksmo atšaukti negalima.', mdDeleteYes: 'Taip, ištrinti visam laikui', mdDeleted: 'Jūsų paskyra ir duomenys ištrinti.',
+  mdTeacherBlocked: 'Negalite ištrinti paskyros patys, nes mokiniams jau įskaitėte valandų. Kreipkitės į administratorių.',
   tomorrow: 'Rytoj', dontForget: 'Nepamirškite ateiti!', nRemind: (x, e) => `Rytoj: „${x}“${e ? ' · '+e : ''}. Nepamirškite ateiti!`,
   jobFull: 'Visos vietos užimtos – kiti mokiniai šio darbo nebemato. Jei kas nors atšauks, darbas vėl atsiras.',
   myStats: 'Mano statistika', stDone: 'Atlikti darbai', stFailed: 'Neatlikti darbai', stPending: 'Laukia patvirtinimo', stDoneShort: 'atlikta', stNone: 'Dar nėra įvertintų darbų. Statistika atsiras, kai mokytojas patvirtins pirmą darbą.',
@@ -463,6 +521,34 @@ Object.assign(I18N.en, {
   tHelpPosted: 'Request posted!', tOffered: 'Thanks! The author will be notified 🙌', tUnoffered: 'Offer withdrawn', tResolved: 'Marked as resolved ✓', tHelpDeleted: 'Request deleted', errOwnPost: "You can't offer help on your own request.",
   awardQ: n => `How many hours to award: ${n}?`, confirm: 'Confirm', allStudents: 'everyone', errHours: 'Enter the number of hours (0.5–100).',
   hNeeded: 'People needed (per time, if several)', hNeed: (k, n) => `Needed: ${n} (${k} offered)`, hNeedEach: n => `Needed: ${n} for each time`, hEnough: 'Enough people',
+  agree1: 'I have read the', privacyLink: 'privacy notice', privacyTitle: 'Privacy notice', understood: 'Got it', myData: 'My data', errConsent: 'Please confirm you have read the privacy notice.',
+  pvContactDefault: 'the school administration (Socialy administrator)',
+  privacyBody: c => `
+    <p><b>Socialy</b> (socialy.lt) is a school tool for organising community activities and recording hours. Here is, in plain words, what data we process and what rights you have.</p>
+    <h4>What we collect</h4>
+    <ul><li><b>Account data:</b> first and last name, school email (@kmmokykla.lt), role (student or teacher) and password (stored encrypted only – nobody can see it).</li>
+    <li><b>Activity data:</b> tasks you sign up for or post, chosen times, results (completed / not completed), awarded hours, comments, attached files and teachers' help requests.</li></ul>
+    <h4>Why</h4>
+    <p>Only to organise community activities: post tasks, sign up, talk about them and record hours. We do not sell data, use it for ads or share it for other purposes.</p>
+    <h4>Who sees your data</h4>
+    <ul><li><b>Your name</b> – signed-in school users (on tasks and comments).</li><li><b>Your email</b> – only you and the administrator.</li>
+    <li><b>Awarded hours</b> – you, teachers and the administrator.</li><li><b>The “For teachers” section</b> – teachers only.</li></ul>
+    <h4>Where it is stored</h4>
+    <p>In a <b>Supabase</b> database in the EU (Ireland). The site is hosted on <b>GitHub Pages</b>, which sees visitors' IP addresses for technical reasons. The connection is encrypted (HTTPS). No advertising or tracking cookies – the browser only keeps your sign-in, language and theme.</p>
+    <h4>How long</h4>
+    <p>As long as you have an account. When you leave the school, the account is deleted. You can delete it yourself at any time.</p>
+    <h4>Your rights</h4>
+    <ul><li><b>Access</b> your data – “👤 My data” → “Download my data”.</li><li><b>Delete</b> your account – “👤 My data” → “Delete my account”.</li>
+    <li><b>Correct</b> or <b>restrict</b> processing – contact ${c}.</li><li><b>Complain</b> to the State Data Protection Inspectorate (vdai.lrv.lt).</li></ul>
+    <h4>Security</h4>
+    <p>Access is limited by database rules: students cannot change hours, see others' emails or the teachers' section. In case of a data breach, the State Data Protection Inspectorate and affected users are notified.</p>
+    <h4>Contact</h4><p>Questions about your data: ${c}.</p>`,
+  mdIntro: 'Here you can download all your data or delete your account.', mdName: 'Name', mdEmail: 'Email', mdRole: 'Role',
+  mdDownload: 'Download my data', mdDownloadTxt: 'You will get a file with all the data Socialy stores about you.', mdDownloadBtn: 'Download', mdDownloaded: 'Data downloaded',
+  mdDelete: 'Delete my account', mdDeleteTxtS: 'Your account, sign-ups, awarded hours and comments will be deleted. This cannot be undone.',
+  mdDeleteTxtT: "Your account, posted tasks, comments and help requests will be deleted. If you have already awarded hours to students, contact the administrator so their hours aren't lost.",
+  mdDeleteBtn: 'Delete account', mdDeleteSure: 'Are you sure? This cannot be undone.', mdDeleteYes: 'Yes, delete permanently', mdDeleted: 'Your account and data have been deleted.',
+  mdTeacherBlocked: "You can't delete your account yourself because you have awarded hours to students. Please contact the administrator.",
   tomorrow: 'Tomorrow', dontForget: "Don't forget to come!", nRemind: (x, e) => `Tomorrow: “${x}”${e ? ' · '+e : ''}. Don't forget to come!`,
   jobFull: 'All spots are taken – other students no longer see this task. If someone cancels, it appears again.',
   myStats: 'My statistics', stDone: 'Completed tasks', stFailed: 'Not completed', stPending: 'Awaiting approval', stDoneShort: 'completed', stNone: 'No evaluated tasks yet. Statistics will appear once a teacher approves your first task.',
@@ -510,6 +596,73 @@ const ymd = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+
 const today = () => ymd(new Date());
 function plusDays(n){ const d=new Date(); d.setDate(d.getDate()+n); return ymd(d) }
 function fmtDate(s){ if(!s) return ''; return t('fmtDate', new Date(s+'T00:00'), t('mon'), t('days')) }
+/* ---------- BDAR: privatumo pranešimas, mano duomenys ---------- */
+function overlay(html){
+  closeOverlay();
+  const el = document.createElement('div'); el.id = 'ovl'; el.className = 'modal-bg'; el.innerHTML = html;
+  el.addEventListener('click', e => { if (e.target === el || e.target.closest('[data-ovlclose]')) closeOverlay() });
+  document.body.appendChild(el); document.body.style.overflow = 'hidden';
+  return el;
+}
+function closeOverlay(){ const o = $('#ovl'); if (o){ o.remove(); document.body.style.overflow = '' } }
+function privacyHtml(){
+  const contact = PRIVACY_CONTACT ? `<a href="mailto:${esc(PRIVACY_CONTACT)}">${esc(PRIVACY_CONTACT)}</a>` : t('pvContactDefault');
+  return t('privacyBody', contact);
+}
+function openPrivacy(){
+  overlay(`<div class="modal doc"><button class="mclose" data-ovlclose aria-label="✕">✕</button>
+    <h3>🔒 ${t('privacyTitle')}</h3><div class="doctext">${privacyHtml()}</div>
+    <div style="text-align:right;margin-top:16px"><button class="btn g" data-ovlclose>${t('understood')}</button></div></div>`);
+}
+function openMyData(step){
+  if (!S.me) return;
+  const isT = S.me.role === 'teacher';
+  const el = overlay(`<div class="modal doc"><button class="mclose" data-ovlclose aria-label="✕">✕</button>
+    <h3>👤 ${t('myData')}</h3>
+    <p class="m" style="margin-bottom:14px">${t('mdIntro')}</p>
+    <div class="mdbox"><div><b>${t('mdName')}</b><span>${esc(fullName(S.me))}</span></div><div><b>${t('mdEmail')}</b><span>${esc(S.me.email)}</span></div><div><b>${t('mdRole')}</b><span>${isT ? t('teacher') : t('student')}</span></div></div>
+    <div class="mdact">
+      <div><b>⬇ ${t('mdDownload')}</b><p class="m">${t('mdDownloadTxt')}</p><button class="btn y sm" id="mdDl">${t('mdDownloadBtn')}</button></div>
+      <div class="danger"><b>🗑 ${t('mdDelete')}</b><p class="m">${isT ? t('mdDeleteTxtT') : t('mdDeleteTxtS')}</p>
+        ${step === 'confirm'
+          ? `<p class="r" style="font-weight:600;margin:6px 0 10px">${t('mdDeleteSure')}</p><div class="row2"><button class="btn ghost sm" id="mdNo">${t('no')}</button><button class="btn sm" style="background:var(--r);color:#fff" id="mdYes">${t('mdDeleteYes')}</button></div>`
+          : `<button class="btn sm out-r" id="mdDel">${t('mdDeleteBtn')}</button>`}
+        <div class="err" id="mdErr"></div></div>
+    </div></div>`);
+  el.querySelector('#mdDl').onclick = exportMyData;
+  const d = el.querySelector('#mdDel'); if (d) d.onclick = () => openMyData('confirm');
+  const n = el.querySelector('#mdNo'); if (n) n.onclick = () => openMyData();
+  const y = el.querySelector('#mdYes'); if (y) y.onclick = async () => {
+    y.disabled = true;
+    try{
+      await q(sb.rpc('delete_my_account'));
+      closeOverlay(); await logout(); S.authNote = t('mdDeleted'); renderAuth();
+    }catch(e){ el.querySelector('#mdErr').textContent = /SOCIALY_TEACHER_HAS_HOURS/.test(String(e && e.message)) ? t('mdTeacherBlocked') : errMsg(e); y.disabled = false }
+  };
+}
+async function exportMyData(){
+  const me = S.me; if (!me) return;
+  let profile = null; try{ profile = await q(sb.from('profiles').select('*').eq('id', me.key).maybeSingle()) }catch(e){}
+  const J = Object.fromEntries(S.jobs.map(j => [j.id, j]));
+  const data = {
+    exported_at: new Date().toISOString(), service: 'Socialy (socialy.lt)',
+    profile: profile ? { first_name: profile.first_name, last_name: profile.last_name, email: profile.email, role: profile.role, created_at: profile.created_at } : { first_name: me.first, last_name: me.last, email: me.email, role: me.role },
+    registrations: S.signups.filter(s => s.studentKey === me.key).map(s => ({ task: (J[s.jobId]||{}).title || null, date: (J[s.jobId]||{}).date || null, time: s.slot || (J[s.jobId]||{}).time || null, status: s.status, hours: s.hours, registered_at: s.at ? new Date(s.at).toISOString() : null })),
+    comments: S.messages.filter(m => m.authorKey === me.key).map(m => ({ task: (J[m.jobId]||{}).title || null, text: m.text, at: new Date(m.at).toISOString() })),
+    tasks_posted: S.jobs.filter(j => j.teacherKey === me.key).map(j => ({ title: j.title, date: j.date, times: j.times.length ? j.times : (j.time ? [j.time] : []), place: j.place, duration_h: j.duration || j.hours, spots: j.spots, description: j.task })),
+    help_requests: S.tposts.filter(p => p.authorKey === me.key).map(p => ({ title: p.title, body: p.body, date: p.date || null, resolved: p.resolved })),
+    help_offers: S.toffers.filter(o => o.teacherKey === me.key).map(o => ({ request: (S.tposts.find(p => p.id === o.postId)||{}).title || null, time: o.slot || null }))
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `socialy-mano-duomenys-${today()}.json`;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove() }, 1000);
+  toast(t('mdDownloaded'));
+}
+document.addEventListener('click', e => {
+  const p = e.target.closest('[data-privacy]'); if (p){ e.preventDefault(); openPrivacy(); return }
+  const d = e.target.closest('[data-mydata]'); if (d){ e.preventDefault(); openMyData(); }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#ovl')) closeOverlay() });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && S.me && (S.statsOpen || S.askHide)){ S.statsOpen = false; S.askHide = null; renderApp() } });
 let toastT; function toast(msg){ const el=$('#toast'); el.textContent=msg; el.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('on'),2600) }
 const ms = ts => ts ? Date.parse(ts) : 0;
@@ -522,6 +675,7 @@ function errMsg(e){
   if (/SOCIALY_BAD_SLOT/.test(m)) return t('errSlot');
   if (/SOCIALY_OWN_POST/.test(m)) return t('errOwnPost');
   if (/SOCIALY_ENOUGH/.test(m)) return t('hEnough');
+  if (/SOCIALY_NO_CONSENT/.test(m)) return t('errConsent');
   if (/SOCIALY_PAST/.test(m)) return t('errPast');
   if (/Invalid login credentials/i.test(m)) return t('errLogin');
   if (/Email not confirmed/i.test(m)) return t('notConfirmed');
@@ -594,6 +748,7 @@ function renderAuth(){
         </div>`}
       <label class="f"><span>${t('email')}</span><input name="email" type="email" required autocomplete="email" placeholder="${t('emailPh')}"></label>
       <label class="f"><span>${t('pass')}${login?'':t('passMin')}</span><input name="pass" type="password" required minlength="${login?1:6}" autocomplete="${login?'current-password':'new-password'}"></label>
+      ${signup ? `<label class="chk"><input type="checkbox" name="agree" required><span>${t('agree1')} <a href="#" data-privacy>${t('privacyLink')}</a></span></label>` : ''}
       ${signup ? `<label class="f ${S.role==='teacher'?'':'hidden'}" id="codeField"><span>${t('teacherCode')}</span><input name="code" autocomplete="off" placeholder="${t('teacherCodeHint')}"></label>` : ''}
       <div class="err" id="authErr"></div>
       <button class="btn full ${login?'y':'g'}" id="authBtn">${login?t('login'):t('signup')} →</button>
@@ -618,6 +773,7 @@ function renderAuth(){
     ${!CONFIGURED ? `<div class="note-box">${t('noConfig')}</div>` : ''}
     ${S.authNote ? `<div class="note-box ok">${esc(S.authNote)}</div>` : ''}
     ${formHtml}
+    <p class="privlink"><a href="#" data-privacy>🔒 ${t('privacyTitle')}</a></p>
    </div>
   </div>`;
   bindLang();
@@ -647,7 +803,7 @@ async function onAuth(ev){
       if (pass.length<6){ err.textContent=t('errShort'); btn.disabled=false; return }
       const { data, error } = await sb.auth.signUp({ email, password: pass, options: {
         emailRedirectTo: REDIRECT,
-        data: { first_name:(f.get('first')||'').trim(), last_name:(f.get('last')||'').trim(), role:S.role, teacher_code:(f.get('code')||'').trim() } } });
+        data: { first_name:(f.get('first')||'').trim(), last_name:(f.get('last')||'').trim(), role:S.role, teacher_code:(f.get('code')||'').trim(), privacy_accepted_at: new Date().toISOString() } } });
       if (error){ err.textContent = signupErr(error, S.role); btn.disabled=false; return }
       if (!data.session){
         // Supabase grąžina user be identities, jei el. paštas jau užregistruotas
@@ -881,7 +1037,8 @@ function renderApp(){
       <div class="who"><span class="nmfull"><b>${esc(fullName(S.me))}</b></span><span class="badge ${isT?'te':'st'}">${isT?t('teacher'):t('student')}</span>${isT ? '' : `<button class="statbtn" data-stats>📊<span>${t('myStats')}</span></button>`}${themeBtn()}${langSwitch()}<button class="linkbtn" id="logout">${t('logout')}</button></div>
     </header>
     ${(() => { const v = isT ? teacherView() : studentView(); return `${v.tabs || ''}<div class="cols"><aside class="side">${v.side}</aside><main class="main">${S.loaded ? notifPanel() : ''}${v.main}</main></div>` })()}
-    ${!isT && S.statsOpen ? statsModal() : ''}`;
+    ${!isT && S.statsOpen ? statsModal() : ''}
+    <footer class="appfoot"><a href="#" data-privacy>🔒 ${t('privacyTitle')}</a><span>·</span><a href="#" data-mydata>👤 ${t('myData')}</a></footer>`;
   $('#logout').onclick = logout;
   bindLang();
   bindView();
